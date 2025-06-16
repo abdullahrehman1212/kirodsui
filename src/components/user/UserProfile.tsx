@@ -12,7 +12,8 @@ import {
   EyeOff, 
   Shield,
   CreditCard,
-  AlertTriangle
+  AlertTriangle,
+  Plus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
