@@ -13,7 +13,10 @@ import {
   HardDrive,
   Database,
   Zap,
-  BarChart3
+  BarChart3,
+  DollarSign,
+  Mail,
+  HelpCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
