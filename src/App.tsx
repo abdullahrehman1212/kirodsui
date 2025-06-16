@@ -23,6 +23,7 @@ import DomainSearch from './pages/DomainSearch';
 import DomainTransfer from './pages/DomainTransfer';
 import KirodsReach from './pages/KirodsReach';
 import BusinessEmail from './pages/BusinessEmail';
+import UserPanel from './pages/UserPanel';
 
 // Admin Pages
 import AdminLayout from './components/admin/AdminLayout';
@@ -55,6 +56,9 @@ function App() {
               <Route path="layout/typography" element={<AdminTypographyEditor />} />
               <Route path="whmcs-api" element={<AdminWHMCSAPI />} />
             </Route>
+            
+            {/* User Panel Routes */}
+            <Route path="/user/*" element={<UserPanel />} />
             
             {/* Public Routes */}
             <Route
