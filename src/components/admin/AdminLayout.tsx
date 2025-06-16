@@ -1,29 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  FileText, 
-  Image, 
-  Users, 
-  Menu, 
-  X, 
-  LogOut,
-  Home,
-  ShoppingBag,
-  DollarSign,
-  Info,
-  Phone,
-  Globe,
-  Mail,
-  ChevronDown,
-  ChevronRight,
-  Palette,
-  Type,
-  Layout,
-  Navigation,
-  Footer
-} from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Image, Users, Menu, X, LogOut, Home, ShoppingBag, DollarSign, Info, Phone, Globe, Mail, ChevronDown, ChevronRight, Palette, Type, Layout, Navigation, FolderRoot as Footer } from 'lucide-react';
 import { useAdmin } from '../../contexts/AdminContext';
 
 const AdminLayout = () => {
