@@ -9,7 +9,8 @@ import {
   Globe,
   Settings,
   Calendar,
-  Clock
+  Clock,
+  Layout
 } from 'lucide-react';
 import { useAdmin } from '../../contexts/AdminContext';
 
