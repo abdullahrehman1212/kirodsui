@@ -19,7 +19,9 @@ import {
   Video,
   Music,
   FilePlus,
-  FolderPlus
+  FolderPlus,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
