@@ -7,6 +7,9 @@ import Products from './pages/Products';
 import Pricing from './pages/Pricing';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import WordPressHosting from './pages/WordPressHosting';
 import WooCommerceHosting from './pages/WooCommerceHosting';
 import WebHosting from './pages/WebHosting';
@@ -31,6 +34,9 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/wordpress-hosting" element={<WordPressHosting />} />
             <Route path="/woocommerce-hosting" element={<WooCommerceHosting />} />
             <Route path="/web-hosting" element={<WebHosting />} />
