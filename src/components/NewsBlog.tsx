@@ -1,39 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, User, ArrowRight } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
 
 const NewsBlog = () => {
-  const articles = [
-    {
-      id: 1,
-      title: 'The Future of Business Technology: Trends to Watch in 2024',
-      excerpt: 'Discover the emerging technologies that will shape the business landscape in the coming year.',
-      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
-      author: 'Sarah Johnson',
-      date: '2024-01-15',
-      category: 'Technology',
-      readTime: '5 min read'
-    },
-    {
-      id: 2,
-      title: 'How to Scale Your Business with Digital Solutions',
-      excerpt: 'Learn proven strategies for leveraging technology to accelerate your business growth.',
-      image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
-      author: 'Michael Chen',
-      date: '2024-01-12',
-      category: 'Business',
-      readTime: '7 min read'
-    },
-    {
-      id: 3,
-      title: 'Security Best Practices for Modern Businesses',
-      excerpt: 'Essential security measures every business should implement to protect their data and operations.',
-      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
-      author: 'Emily Rodriguez',
-      date: '2024-01-10',
-      category: 'Security',
-      readTime: '6 min read'
+  const { siteContent } = useAdmin();
+  const [content, setContent] = useState({
+    title: 'Latest News & Insights',
+    subtitle: 'Stay updated with the latest industry trends, insights, and company news',
+    articles: [
+      {
+        id: 1,
+        title: 'The Future of Business Technology: Trends to Watch in 2024',
+        excerpt: 'Discover the emerging technologies that will shape the business landscape in the coming year.',
+        image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+        author: 'Sarah Johnson',
+        date: '2024-01-15',
+        category: 'Technology',
+        readTime: '5 min read'
+      },
+      {
+        id: 2,
+        title: 'How to Scale Your Business with Digital Solutions',
+        excerpt: 'Learn proven strategies for leveraging technology to accelerate your business growth.',
+        image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+        author: 'Michael Chen',
+        date: '2024-01-12',
+        category: 'Business',
+        readTime: '7 min read'
+      },
+      {
+        id: 3,
+        title: 'Security Best Practices for Modern Businesses',
+        excerpt: 'Essential security measures every business should implement to protect their data and operations.',
+        image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+        author: 'Emily Rodriguez',
+        date: '2024-01-10',
+        category: 'Security',
+        readTime: '6 min read'
+      }
+    ]
+  });
+
+  useEffect(() => {
+    // Load content from database if available
+    const newsContent = siteContent.find(
+      item => item.page === 'home' && item.section === 'news'
+    );
+    
+    if (newsContent) {
+      setContent(newsContent.content);
     }
-  ];
+  }, [siteContent]);
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -58,15 +75,15 @@ const NewsBlog = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-text-dark mb-4">
-            Latest News & Insights
+            {content.title}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Stay updated with the latest industry trends, insights, and company news
+            {content.subtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {articles.map((article) => (
+          {(content.articles || []).map((article) => (
             <article
               key={article.id}
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden group"

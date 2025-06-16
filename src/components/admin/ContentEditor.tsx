@@ -119,6 +119,109 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
             }
           ]
         };
+      case 'trust':
+        return {
+          title: 'Trusted by Thousands',
+          subtitle: 'Join our community of satisfied customers',
+          trustLogos: [
+            { name: 'Trustpilot', rating: '4.7', reviews: '46,826', stars: 5 },
+            { name: 'Google', rating: '4.8', reviews: '1,237', stars: 5 },
+            { name: 'hostadvice', rating: '4.6', reviews: '2,432', stars: 5 },
+            { name: 'wpbeginner', rating: '4.7', reviews: '874', stars: 5 }
+          ]
+        };
+      case 'about-preview':
+        return {
+          title: 'About Kirods',
+          subtitle: 'Since 2009, Kirods has been at the forefront of business innovation',
+          description: 'Our commitment to excellence and customer satisfaction has made us a trusted partner for businesses worldwide.',
+          mission: 'To democratize business technology by making premium solutions accessible, reliable, and affordable for companies of all sizes.',
+          stats: [
+            { value: '10K+', label: 'Happy Customers' },
+            { value: '15+', label: 'Years Experience' },
+            { value: '50+', label: 'Countries Served' },
+            { value: '99.9%', label: 'Success Rate' }
+          ],
+          team: [
+            {
+              name: 'Sarah Johnson',
+              role: 'CEO & Founder',
+              image: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+            },
+            {
+              name: 'Michael Chen',
+              role: 'CTO',
+              image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+            },
+            {
+              name: 'Emily Rodriguez',
+              role: 'Head of Operations',
+              image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+            }
+          ]
+        };
+      case 'faq':
+        return {
+          title: 'Frequently Asked Questions',
+          subtitle: 'Find answers to common questions about our hosting services, features, and support.',
+          faqs: [
+            {
+              question: "What is included in my hosting plan?",
+              answer: "All hosting plans include SSD storage, free SSL certificates, daily backups, 24/7 support, one-click WordPress installation, and a 99.9% uptime guarantee. Higher-tier plans include additional features like priority support, advanced security, and more storage."
+            },
+            {
+              question: "How long does it take to set up my website?",
+              answer: "Your hosting account is activated instantly upon payment confirmation. You can start building your website immediately using our website builder or upload your existing files. Most websites are live within minutes of setup."
+            },
+            {
+              question: "Do you offer a money-back guarantee?",
+              answer: "Yes, we offer a 30-day money-back guarantee on all hosting plans. If you're not satisfied with our service within the first 30 days, we'll refund your payment in full, no questions asked."
+            }
+          ]
+        };
+      case 'news':
+        return {
+          title: 'Latest News & Insights',
+          subtitle: 'Stay updated with the latest industry trends, insights, and company news',
+          articles: [
+            {
+              title: 'The Future of Business Technology: Trends to Watch in 2024',
+              excerpt: 'Discover the emerging technologies that will shape the business landscape in the coming year.',
+              image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+              author: 'Sarah Johnson',
+              date: '2024-01-15',
+              category: 'Technology',
+              readTime: '5 min read'
+            },
+            {
+              title: 'How to Scale Your Business with Digital Solutions',
+              excerpt: 'Learn proven strategies for leveraging technology to accelerate your business growth.',
+              image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+              author: 'Michael Chen',
+              date: '2024-01-12',
+              category: 'Business',
+              readTime: '7 min read'
+            },
+            {
+              title: 'Security Best Practices for Modern Businesses',
+              excerpt: 'Essential security measures every business should implement to protect their data and operations.',
+              image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+              author: 'Emily Rodriguez',
+              date: '2024-01-10',
+              category: 'Security',
+              readTime: '6 min read'
+            }
+          ]
+        };
+      case 'cta':
+        return {
+          title: 'Ready to Get Started?',
+          subtitle: 'Join over 10,000 businesses that trust Kirods for their success. Get started today with our comprehensive solutions and expert support.',
+          buttonText: 'Start Your Journey',
+          buttonLink: '#pricing-section',
+          secondaryButtonText: 'View Our Solutions',
+          secondaryButtonLink: '#'
+        };
       default:
         return {};
     }
@@ -168,6 +271,9 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
       
       // Navigate to the array
       for (let i = 0; i < pathParts.length; i++) {
+        if (!current[pathParts[i]]) {
+          current[pathParts[i]] = [];
+        }
         current = current[pathParts[i]];
       }
       
@@ -193,6 +299,39 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
           name: 'Customer Name',
           company: 'Company Name',
           image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+        });
+      } else if (arrayPath === 'trustLogos') {
+        current.push({
+          name: 'New Trust Logo',
+          rating: '4.5',
+          reviews: '1,000',
+          stars: 5
+        });
+      } else if (arrayPath === 'stats') {
+        current.push({
+          value: 'New Stat',
+          label: 'Stat Label'
+        });
+      } else if (arrayPath === 'team') {
+        current.push({
+          name: 'Team Member',
+          role: 'Role',
+          image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+        });
+      } else if (arrayPath === 'faqs') {
+        current.push({
+          question: 'New Question',
+          answer: 'Answer to the new question'
+        });
+      } else if (arrayPath === 'articles') {
+        current.push({
+          title: 'New Article Title',
+          excerpt: 'Article excerpt goes here',
+          image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400&h=250&dpr=2',
+          author: 'Author Name',
+          date: new Date().toISOString().split('T')[0],
+          category: 'Category',
+          readTime: '5 min read'
         });
       }
       
@@ -659,6 +798,352 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
     );
   };
 
+  const renderTrustEditor = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">Trust Section</h3>
+          
+          {renderField('Title', 'title', content.title)}
+          {renderTextArea('Subtitle', 'subtitle', content.subtitle)}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-800">Trust Logos</h3>
+            <button
+              type="button"
+              onClick={() => handleAddItem('trustLogos')}
+              className="bg-main-green text-white p-2 rounded-lg hover:bg-secondary-green transition-colors duration-200"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {(content.trustLogos || []).map((logo: any, index: number) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-gray-800">Trust Logo {index + 1}</h4>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('trustLogos', index, 'up')}
+                    disabled={index === 0}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('trustLogos', index, 'down')}
+                    disabled={index === (content.trustLogos || []).length - 1}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem('trustLogos', index)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {renderField('Name', `trustLogos[${index}].name`, logo.name, `trustLogos[${index}].name`)}
+              {renderField('Rating', `trustLogos[${index}].rating`, logo.rating, `trustLogos[${index}].rating`)}
+              {renderField('Reviews', `trustLogos[${index}].reviews`, logo.reviews, `trustLogos[${index}].reviews`)}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Stars (1-5)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={logo.stars || 5}
+                  onChange={(e) => handleTextChange(e, `trustLogos[${index}].stars`)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-green focus:border-transparent"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderAboutPreviewEditor = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">About Preview Section</h3>
+          
+          {renderField('Title', 'title', content.title)}
+          {renderField('Subtitle', 'subtitle', content.subtitle)}
+          {renderTextArea('Description', 'description', content.description)}
+          {renderTextArea('Mission', 'mission', content.mission)}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-800">Stats</h3>
+            <button
+              type="button"
+              onClick={() => handleAddItem('stats')}
+              className="bg-main-green text-white p-2 rounded-lg hover:bg-secondary-green transition-colors duration-200"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {(content.stats || []).map((stat: any, index: number) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-gray-800">Stat {index + 1}</h4>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('stats', index, 'up')}
+                    disabled={index === 0}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('stats', index, 'down')}
+                    disabled={index === (content.stats || []).length - 1}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem('stats', index)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {renderField('Value', `stats[${index}].value`, stat.value, `stats[${index}].value`)}
+              {renderField('Label', `stats[${index}].label`, stat.label, `stats[${index}].label`)}
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-800">Team Members</h3>
+            <button
+              type="button"
+              onClick={() => handleAddItem('team')}
+              className="bg-main-green text-white p-2 rounded-lg hover:bg-secondary-green transition-colors duration-200"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {(content.team || []).map((member: any, index: number) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-gray-800">Team Member {index + 1}</h4>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('team', index, 'up')}
+                    disabled={index === 0}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('team', index, 'down')}
+                    disabled={index === (content.team || []).length - 1}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem('team', index)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {renderField('Name', `team[${index}].name`, member.name, `team[${index}].name`)}
+              {renderField('Role', `team[${index}].role`, member.role, `team[${index}].role`)}
+              {renderImageField('Image', `team[${index}].image`, member.image, `team[${index}].image`)}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderFAQEditor = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">FAQ Section</h3>
+          
+          {renderField('Title', 'title', content.title)}
+          {renderTextArea('Subtitle', 'subtitle', content.subtitle)}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-800">FAQs</h3>
+            <button
+              type="button"
+              onClick={() => handleAddItem('faqs')}
+              className="bg-main-green text-white p-2 rounded-lg hover:bg-secondary-green transition-colors duration-200"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {(content.faqs || []).map((faq: any, index: number) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-gray-800">FAQ {index + 1}</h4>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('faqs', index, 'up')}
+                    disabled={index === 0}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('faqs', index, 'down')}
+                    disabled={index === (content.faqs || []).length - 1}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem('faqs', index)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {renderField('Question', `faqs[${index}].question`, faq.question, `faqs[${index}].question`)}
+              {renderTextArea('Answer', `faqs[${index}].answer`, faq.answer, `faqs[${index}].answer`)}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderNewsEditor = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">News & Blog Section</h3>
+          
+          {renderField('Title', 'title', content.title)}
+          {renderTextArea('Subtitle', 'subtitle', content.subtitle)}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-800">Articles</h3>
+            <button
+              type="button"
+              onClick={() => handleAddItem('articles')}
+              className="bg-main-green text-white p-2 rounded-lg hover:bg-secondary-green transition-colors duration-200"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {(content.articles || []).map((article: any, index: number) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-gray-800">Article {index + 1}</h4>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('articles', index, 'up')}
+                    disabled={index === 0}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMoveItem('articles', index, 'down')}
+                    disabled={index === (content.articles || []).length - 1}
+                    className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem('articles', index)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {renderField('Title', `articles[${index}].title`, article.title, `articles[${index}].title`)}
+              {renderTextArea('Excerpt', `articles[${index}].excerpt`, article.excerpt, `articles[${index}].excerpt`)}
+              {renderImageField('Image', `articles[${index}].image`, article.image, `articles[${index}].image`)}
+              {renderField('Author', `articles[${index}].author`, article.author, `articles[${index}].author`)}
+              {renderField('Date', `articles[${index}].date`, article.date, `articles[${index}].date`)}
+              {renderField('Category', `articles[${index}].category`, article.category, `articles[${index}].category`)}
+              {renderField('Read Time', `articles[${index}].readTime`, article.readTime, `articles[${index}].readTime`)}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCTAEditor = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">CTA Section</h3>
+          
+          {renderField('Title', 'title', content.title)}
+          {renderTextArea('Subtitle', 'subtitle', content.subtitle)}
+          {renderField('Button Text', 'buttonText', content.buttonText)}
+          {renderField('Button Link', 'buttonLink', content.buttonLink)}
+          {renderField('Secondary Button Text', 'secondaryButtonText', content.secondaryButtonText)}
+          {renderField('Secondary Button Link', 'secondaryButtonLink', content.secondaryButtonLink)}
+        </div>
+      </div>
+    );
+  };
+
   const renderEditor = () => {
     if (!content) return null;
     
@@ -671,6 +1156,16 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
         return renderPricingEditor();
       case 'testimonials':
         return renderTestimonialsEditor();
+      case 'trust':
+        return renderTrustEditor();
+      case 'about-preview':
+        return renderAboutPreviewEditor();
+      case 'faq':
+        return renderFAQEditor();
+      case 'news':
+        return renderNewsEditor();
+      case 'cta':
+        return renderCTAEditor();
       default:
         return (
           <div className="bg-white rounded-xl shadow-md p-6">

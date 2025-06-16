@@ -1,89 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star, Quote, Play } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
 
 const CustomerTestimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { siteContent } = useAdmin();
+  const [content, setContent] = useState({
+    title: 'What Our Customers Say',
+    subtitle: 'Join thousands of satisfied customers who trust Kirods for their business success.',
+    testimonials: [
+      {
+        id: 1,
+        quote: "I could manage the hosting, domain name, and SSL certificate in one place, which was really refreshing.",
+        name: "Owen Phillips",
+        company: "gatefootforge.co.uk",
+        image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
+        hasVideo: true,
+        fullStoryLink: "#"
+      },
+      {
+        id: 2,
+        quote: "Migrating to Kirods was the best decision I ever made.",
+        name: "Gabrielle Scarlett",
+        company: "gabriellescarlett.com",
+        image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
+        hasVideo: true,
+        fullStoryLink: "#"
+      },
+      {
+        id: 3,
+        quote: "We honestly reference Kirods as the benchmark for our engineers when providing support.",
+        name: "Charlie Low and Dale Comely",
+        company: "nohma.com",
+        image: "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
+        hasVideo: true,
+        fullStoryLink: "#"
+      },
+      {
+        id: 4,
+        quote: "The performance improvements were immediate. Our site loads 3x faster now and our customers notice the difference.",
+        name: "Sarah Johnson",
+        company: "techstartup.io",
+        image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
+        hasVideo: false,
+        fullStoryLink: "#"
+      },
+      {
+        id: 5,
+        quote: "24/7 support that actually responds in minutes, not hours. Game changer for our business operations.",
+        name: "Michael Chen",
+        company: "digitalagency.com",
+        image: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
+        hasVideo: false,
+        fullStoryLink: "#"
+      }
+    ]
+  });
 
-  const testimonials = [
-    {
-      id: 1,
-      quote: "I could manage the hosting, domain name, and SSL certificate in one place, which was really refreshing.",
-      name: "Owen Phillips",
-      company: "gatefootforge.co.uk",
-      image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
-      hasVideo: true,
-      fullStoryLink: "#"
-    },
-    {
-      id: 2,
-      quote: "Migrating to Kirods was the best decision I ever made.",
-      name: "Gabrielle Scarlett",
-      company: "gabriellescarlett.com",
-      image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
-      hasVideo: true,
-      fullStoryLink: "#"
-    },
-    {
-      id: 3,
-      quote: "We honestly reference Kirods as the benchmark for our engineers when providing support.",
-      name: "Charlie Low and Dale Comely",
-      company: "nohma.com",
-      image: "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
-      hasVideo: true,
-      fullStoryLink: "#"
-    },
-    {
-      id: 4,
-      quote: "The performance improvements were immediate. Our site loads 3x faster now and our customers notice the difference.",
-      name: "Sarah Johnson",
-      company: "techstartup.io",
-      image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
-      hasVideo: false,
-      fullStoryLink: "#"
-    },
-    {
-      id: 5,
-      quote: "24/7 support that actually responds in minutes, not hours. Game changer for our business operations.",
-      name: "Michael Chen",
-      company: "digitalagency.com",
-      image: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2",
-      hasVideo: false,
-      fullStoryLink: "#"
+  useEffect(() => {
+    // Load content from database if available
+    const testimonialsContent = siteContent.find(
+      item => item.page === 'home' && item.section === 'testimonials'
+    );
+    
+    if (testimonialsContent) {
+      setContent(testimonialsContent.content);
     }
-  ];
+  }, [siteContent]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+      setCurrentSlide((prev) => (prev + 1) % (content.testimonials || []).length);
     }, 6000);
 
     return () => clearInterval(timer);
-  }, [testimonials.length]);
+  }, [content.testimonials]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    setCurrentSlide((prev) => (prev + 1) % (content.testimonials || []).length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setCurrentSlide((prev) => (prev - 1 + (content.testimonials || []).length) % (content.testimonials || []).length);
   };
 
   const goToSlide = (index) => {
     setCurrentSlide(index);
   };
 
-  const currentTestimonial = testimonials[currentSlide];
+  if (!content.testimonials || content.testimonials.length === 0) {
+    return null;
+  }
+
+  const currentTestimonial = content.testimonials[currentSlide];
 
   return (
     <section className="py-20 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-text-dark mb-6">
-            What Our Customers Say
+            {content.title}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join thousands of satisfied customers who trust Kirods for their business success. 
-            Here's what they have to say about their experience.
+            {content.subtitle}
           </p>
         </div>
 
@@ -162,7 +181,7 @@ const CustomerTestimonials = () => {
 
         {/* Testimonial Indicators */}
         <div className="flex justify-center mt-12 space-x-3">
-          {testimonials.map((_, index) => (
+          {(content.testimonials || []).map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}

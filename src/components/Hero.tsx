@@ -1,7 +1,30 @@
 import React from 'react';
 import { ArrowRight, Play } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
 
 const Hero = () => {
+  const { siteContent } = useAdmin();
+  const [content, setContent] = React.useState({
+    title: 'Premium Solutions for Your Business',
+    subtitle: 'Discover innovative products and services designed to accelerate your business growth. Join thousands of satisfied customers worldwide.',
+    buttonText: 'Get Started Today',
+    buttonLink: '#pricing-section',
+    secondaryButtonText: 'Watch Demo',
+    secondaryButtonLink: '#',
+    backgroundImage: ''
+  });
+
+  React.useEffect(() => {
+    // Load content from database if available
+    const heroContent = siteContent.find(
+      item => item.page === 'home' && item.section === 'hero'
+    );
+    
+    if (heroContent) {
+      setContent(heroContent.content);
+    }
+  }, [siteContent]);
+
   const handleWatchDemo = async () => {
     try {
       const response = await fetch('https://tavusapi.com/v2/conversations', {
@@ -61,16 +84,16 @@ const Hero = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in-up">
-            Premium Solutions
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-              for Your Business
-            </span>
+            {content.title.split('\n').map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < content.title.split('\n').length - 1 && <br />}
+              </React.Fragment>
+            ))}
           </h1>
           
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
-            Discover innovative products and services designed to accelerate your business growth. 
-            Join thousands of satisfied customers worldwide.
+            {content.subtitle}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up animation-delay-400">
@@ -78,7 +101,7 @@ const Hero = () => {
               onClick={scrollToPricing}
               className="bg-white text-main-green px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition-all duration-300 hover:scale-105 flex items-center"
             >
-              Get Started Today
+              {content.buttonText}
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
             <button 
@@ -86,7 +109,7 @@ const Hero = () => {
               className="text-white px-8 py-3 rounded-lg font-semibold border border-white/30 hover:bg-white/10 transition-all duration-300 flex items-center group"
             >
               <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
-              Watch Demo
+              {content.secondaryButtonText}
             </button>
           </div>
         </div>

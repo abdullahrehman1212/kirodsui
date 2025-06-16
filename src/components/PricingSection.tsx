@@ -1,386 +1,402 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
 
 const PricingSection = () => {
   const [allPlansExpanded, setAllPlansExpanded] = useState(false);
+  const { siteContent } = useAdmin();
+  const [content, setContent] = useState({
+    title: 'Pick your perfect plan',
+    subtitle: 'Pick your perfect plan and launch online in minutes with AI.',
+    plans: [
+      {
+        id: 'single',
+        name: 'Single',
+        description: 'Ideal solution for beginners.',
+        originalPrice: 1399,
+        currentPrice: 399,
+        discount: 'SAVE 71%',
+        renewalPrice: 999,
+        features: {
+          basic: [
+            { name: '1 website', included: true },
+            { name: 'Managed hosting for WordPress', included: true },
+            { name: 'Free 7-day Horizons trial', included: false },
+            { name: '10 GB SSD storage', included: true },
+            { name: 'Hostinger Website Builder', included: true },
+            { name: 'Free domain (Rs.2,499 value)', included: false },
+            { name: 'Free automatic website migration', included: true }
+          ],
+          extended: [
+            { name: '1 mailbox - free for 1 year', included: true },
+            { name: 'Unlimited free SSL', included: true },
+            { name: 'Weekly backups', included: true },
+            { name: 'WooCommerce', included: false },
+            { name: 'AI SEO ready', included: true },
+            { name: 'Free CDN', included: false },
+            { name: 'Dedicated IP address', included: false },
+            { name: 'Priority support', included: false }
+          ],
+          wordpress: [
+            { name: 'Free 1-click WordPress installation', included: true },
+            { name: 'Free 1-click Google integration', included: true },
+            { name: 'Free pre-built templates', included: true },
+            { name: 'WordPress acceleration (LiteSpeed)', included: true },
+            { name: 'Smart WordPress auto updates', included: true },
+            { name: 'WordPress vulnerabilities scanner', included: true },
+            { name: 'WordPress compatibility checker', included: true },
+            { name: 'WordPress multisite', included: false },
+            { name: 'WP-CLI and SSH', included: false },
+            { name: 'Free Amazon affiliate WordPress plugin', included: false },
+            { name: 'WordPress staging tool', included: false },
+            { name: 'Object cache for WordPress', included: false },
+            { name: 'On-demand backup', included: false },
+            { name: 'WordPress AI tools', included: false }
+          ],
+          builder: [
+            { name: 'AI website builder', included: true },
+            { name: 'Drag & drop editor', included: true },
+            { name: '150 templates', included: true },
+            { name: 'Marketing integrations', included: true },
+            { name: 'AI image generator', included: false },
+            { name: 'AI writer', included: false },
+            { name: 'AI blog generator', included: false },
+            { name: 'AI SEO tools', included: false },
+            { name: 'eCommerce features', included: false },
+            { name: '0% transaction fees', included: false },
+            { name: '100+ payment methods', included: false }
+          ],
+          security: [
+            { name: 'Standard DDoS protection', included: true },
+            { name: 'Malware Scanner', included: true },
+            { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: false },
+            { name: 'Web application firewall', included: true },
+            { name: 'Cloudflare protected nameservers', included: true },
+            { name: 'Secure access manager', included: true }
+          ],
+          support: [
+            { name: '100 GB bandwidth', included: true },
+            { name: '99.9% uptime guarantee', included: true },
+            { name: 'Global Data Centres', included: true },
+            { name: '24/7 customer support', included: true },
+            { name: '30-Day money-back guarantee', included: true }
+          ],
+          technical: [
+            { name: '200,000 files and directories (inodes)', included: true },
+            { name: '25 PHP workers', included: true },
+            { name: '~10,000 visits monthly', included: true },
+            { name: '2 subdomains', included: true },
+            { name: '25 MySQL max user connections', included: true },
+            { name: '2 databases', included: true },
+            { name: 'GIT access', included: true },
+            { name: 'Multiple PHP versions', included: true },
+            { name: 'SSH access', included: false },
+            { name: 'DNS management', included: true },
+            { name: '1 FTP account', included: true },
+            { name: 'Unlimited cronjobs', included: true },
+            { name: 'Cache manager', included: true },
+            { name: 'Powerful control panel', included: true }
+          ]
+        },
+        popular: false,
+        buttonStyle: 'outline'
+      },
+      {
+        id: 'premium',
+        name: 'Premium',
+        description: 'Everything you need to create your website.',
+        originalPrice: 1999,
+        currentPrice: 599,
+        discount: 'SAVE 70%',
+        renewalPrice: 1699,
+        bonusMonths: '+3 months free',
+        features: {
+          basic: [
+            { name: '25 websites', included: true },
+            { name: 'Managed hosting for WordPress', included: true },
+            { name: 'Free 7-day Horizons trial', included: true },
+            { name: '25 GB SSD storage', included: true },
+            { name: 'Hostinger Website Builder', included: true },
+            { name: 'Free domain (Rs.2,499 value)', included: true },
+            { name: 'Free automatic website migration', included: true }
+          ],
+          extended: [
+            { name: '2 mailboxes per website - free for 1 year', included: true },
+            { name: 'Unlimited free SSL', included: true },
+            { name: 'Weekly backups', included: true },
+            { name: 'Starter WooCommerce', included: true },
+            { name: 'AI SEO ready', included: true },
+            { name: 'Free CDN', included: false },
+            { name: 'Dedicated IP address', included: false },
+            { name: 'Priority support', included: false }
+          ],
+          wordpress: [
+            { name: 'Free 1-click WordPress installation', included: true },
+            { name: 'Free 1-click Google integration', included: true },
+            { name: 'Free pre-built templates', included: true },
+            { name: 'WordPress acceleration (LiteSpeed)', included: true },
+            { name: 'Smart WordPress auto updates', included: true },
+            { name: 'WordPress vulnerabilities scanner', included: true },
+            { name: 'WordPress compatibility checker', included: true },
+            { name: 'WordPress multisite', included: true },
+            { name: 'WP-CLI and SSH', included: true },
+            { name: 'Free Amazon affiliate WordPress plugin', included: false },
+            { name: 'WordPress staging tool', included: false },
+            { name: 'Object cache for WordPress', included: false },
+            { name: 'On-demand backup', included: false },
+            { name: 'WordPress AI tools', included: false }
+          ],
+          builder: [
+            { name: 'AI website builder', included: true },
+            { name: 'Drag & drop editor', included: true },
+            { name: '150 templates', included: true },
+            { name: 'Marketing integrations', included: true },
+            { name: 'AI image generator', included: false },
+            { name: 'AI writer', included: false },
+            { name: 'AI blog generator', included: false },
+            { name: 'AI SEO tools', included: false },
+            { name: 'eCommerce features', included: false },
+            { name: '0% transaction fees', included: false },
+            { name: '100+ payment methods', included: false }
+          ],
+          security: [
+            { name: 'Standard DDoS protection', included: true },
+            { name: 'Malware Scanner', included: true },
+            { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
+            { name: 'Web application firewall', included: true },
+            { name: 'Cloudflare protected nameservers', included: true },
+            { name: 'Secure access manager', included: true }
+          ],
+          support: [
+            { name: 'Unlimited bandwidth', included: true },
+            { name: '99.9% uptime guarantee', included: true },
+            { name: 'Global Data Centres', included: true },
+            { name: '24/7 customer support', included: true },
+            { name: '30-Day money-back guarantee', included: true }
+          ],
+          technical: [
+            { name: '400,000 files and directories (inodes)', included: true },
+            { name: '40 PHP workers', included: true },
+            { name: '~25,000 visits monthly', included: true },
+            { name: '100 subdomains', included: true },
+            { name: '50 MySQL max user connections', included: true },
+            { name: '300 databases', included: true },
+            { name: 'GIT access', included: true },
+            { name: 'Multiple PHP versions', included: true },
+            { name: 'SSH access', included: true },
+            { name: 'DNS management', included: true },
+            { name: 'Unlimited FTP accounts', included: true },
+            { name: 'Unlimited cronjobs', included: true },
+            { name: 'Cache manager', included: true },
+            { name: 'Powerful control panel', included: true }
+          ]
+        },
+        popular: true,
+        buttonStyle: 'filled'
+      },
+      {
+        id: 'business',
+        name: 'Business',
+        description: 'Level up with more power and enhanced features.',
+        originalPrice: 2499,
+        currentPrice: 799,
+        discount: 'SAVE 68%',
+        renewalPrice: 2299,
+        bonusMonths: '+3 months free',
+        features: {
+          basic: [
+            { name: '50 websites', included: true },
+            { name: 'Managed hosting for WordPress', included: true },
+            { name: 'Free 7-day Horizons trial', included: true },
+            { name: '50 GB NVMe storage', included: true },
+            { name: 'Hostinger Website Builder', included: true },
+            { name: 'Free domain (Rs.2,499 value)', included: true },
+            { name: 'Free automatic website migration', included: true }
+          ],
+          extended: [
+            { name: '5 mailboxes per website - free for 1 year', included: true },
+            { name: 'Unlimited free SSL', included: true },
+            { name: 'Daily backups (Rs.7,188 value)', included: true },
+            { name: 'Basic WooCommerce Optimisation', included: true },
+            { name: 'AI SEO ready', included: true },
+            { name: 'Free CDN', included: true },
+            { name: 'Dedicated IP address', included: false },
+            { name: 'Priority support', included: false }
+          ],
+          wordpress: [
+            { name: 'Free 1-click WordPress installation', included: true },
+            { name: 'Free 1-click Google integration', included: true },
+            { name: 'Free pre-built templates', included: true },
+            { name: 'WordPress acceleration (LiteSpeed)', included: true },
+            { name: 'Smart WordPress auto updates', included: true },
+            { name: 'WordPress vulnerabilities scanner', included: true },
+            { name: 'WordPress compatibility checker', included: true },
+            { name: 'WordPress multisite', included: true },
+            { name: 'WP-CLI and SSH', included: true },
+            { name: 'Free Amazon affiliate WordPress plugin', included: true },
+            { name: 'WordPress staging tool', included: true },
+            { name: 'Object cache for WordPress', included: true },
+            { name: 'On-demand backup', included: true },
+            { name: 'WordPress AI tools', included: true }
+          ],
+          builder: [
+            { name: 'AI website builder', included: true },
+            { name: 'Drag & drop editor', included: true },
+            { name: '150 templates', included: true },
+            { name: 'Marketing integrations', included: true },
+            { name: 'AI image generator', included: true },
+            { name: 'AI writer', included: true },
+            { name: 'AI blog generator', included: true },
+            { name: 'AI SEO tools', included: true },
+            { name: 'eCommerce features', included: true },
+            { name: '0% transaction fees', included: true },
+            { name: '100+ payment methods', included: true }
+          ],
+          security: [
+            { name: 'Enhanced DDoS protection', included: true },
+            { name: 'Malware Scanner', included: true },
+            { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
+            { name: 'Web application firewall', included: true },
+            { name: 'Cloudflare protected nameservers', included: true },
+            { name: 'Secure access manager', included: true }
+          ],
+          support: [
+            { name: 'Unlimited bandwidth', included: true },
+            { name: '99.9% uptime guarantee', included: true },
+            { name: 'Global Data Centres', included: true },
+            { name: '24/7 customer support', included: true },
+            { name: '30-Day money-back guarantee', included: true }
+          ],
+          technical: [
+            { name: '600,000 files and directories (inodes)', included: true },
+            { name: '60 PHP workers', included: true },
+            { name: '~100,000 visits monthly', included: true },
+            { name: '100 subdomains', included: true },
+            { name: '75 MySQL max user connections', included: true },
+            { name: '300 databases', included: true },
+            { name: 'GIT access', included: true },
+            { name: 'Multiple PHP versions', included: true },
+            { name: 'SSH access', included: true },
+            { name: 'DNS management', included: true },
+            { name: 'Unlimited FTP accounts', included: true },
+            { name: 'Unlimited cronjobs', included: true },
+            { name: 'Cache manager', included: true },
+            { name: 'Powerful control panel', included: true }
+          ]
+        },
+        popular: false,
+        buttonStyle: 'outline'
+      },
+      {
+        id: 'cloud-startup',
+        name: 'Cloud Startup',
+        description: 'Enjoy optimized performance & powerful resources.',
+        originalPrice: 5699,
+        currentPrice: 2099,
+        discount: 'SAVE 63%',
+        renewalPrice: 5399,
+        bonusMonths: '+3 months free',
+        features: {
+          basic: [
+            { name: '100 websites', included: true },
+            { name: 'Managed hosting for WordPress', included: true },
+            { name: 'Free 7-day Horizons trial', included: true },
+            { name: '100 GB NVMe storage', included: true },
+            { name: 'Hostinger Website Builder', included: true },
+            { name: 'Free domain (Rs.2,499 value)', included: true },
+            { name: 'Free automatic website migration', included: true }
+          ],
+          extended: [
+            { name: '10 mailboxes per website - free for 1 year', included: true },
+            { name: 'Unlimited free SSL', included: true },
+            { name: 'Daily backups (Rs.7,188 value)', included: true },
+            { name: 'Standard WooCommerce', included: true },
+            { name: 'AI SEO ready', included: true },
+            { name: 'Free CDN', included: true },
+            { name: 'Dedicated IP address', included: true },
+            { name: 'Priority support', included: true }
+          ],
+          wordpress: [
+            { name: 'Free 1-click WordPress installation', included: true },
+            { name: 'Free 1-click Google integration', included: true },
+            { name: 'Free pre-built templates', included: true },
+            { name: 'WordPress acceleration (LiteSpeed)', included: true },
+            { name: 'Smart WordPress auto updates', included: true },
+            { name: 'WordPress vulnerabilities scanner', included: true },
+            { name: 'WordPress compatibility checker', included: true },
+            { name: 'WordPress multisite', included: true },
+            { name: 'WP-CLI and SSH', included: true },
+            { name: 'Free Amazon affiliate WordPress plugin', included: true },
+            { name: 'WordPress staging tool', included: true },
+            { name: 'Object cache for WordPress', included: true },
+            { name: 'On-demand backup', included: true },
+            { name: 'WordPress AI tools', included: true }
+          ],
+          builder: [
+            { name: 'AI website builder', included: true },
+            { name: 'Drag & drop editor', included: true },
+            { name: '150 templates', included: true },
+            { name: 'Marketing integrations', included: true },
+            { name: 'AI image generator', included: true },
+            { name: 'AI writer', included: true },
+            { name: 'AI blog generator', included: true },
+            { name: 'AI SEO tools', included: true },
+            { name: 'eCommerce features', included: true },
+            { name: '0% transaction fees', included: true },
+            { name: '100+ payment methods', included: true }
+          ],
+          security: [
+            { name: 'Enhanced DDoS protection', included: true },
+            { name: 'Malware Scanner', included: true },
+            { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
+            { name: 'Web application firewall', included: true },
+            { name: 'Cloudflare protected nameservers', included: true },
+            { name: 'Secure access manager', included: true }
+          ],
+          support: [
+            { name: 'Unlimited bandwidth', included: true },
+            { name: '99.9% uptime guarantee', included: true },
+            { name: 'Global Data Centres', included: true },
+            { name: '24/7 customer support', included: true },
+            { name: '30-Day money-back guarantee', included: true }
+          ],
+          technical: [
+            { name: '2,000,000 files and directories (inodes)', included: true },
+            { name: '100 PHP workers', included: true },
+            { name: '~200,000 visits monthly', included: true },
+            { name: '300 subdomains', included: true },
+            { name: '100 MySQL max user connections', included: true },
+            { name: '800 databases', included: true },
+            { name: 'GIT access', included: true },
+            { name: 'Multiple PHP versions', included: true },
+            { name: 'SSH access', included: true },
+            { name: 'DNS management', included: true },
+            { name: 'Unlimited FTP accounts', included: true },
+            { name: 'Unlimited cronjobs', included: true },
+            { name: 'Cache manager', included: true },
+            { name: 'Powerful control panel', included: true }
+          ]
+        },
+        popular: false,
+        buttonStyle: 'outline'
+      }
+    ]
+  });
+
+  useEffect(() => {
+    // Load content from database if available
+    const pricingContent = siteContent.find(
+      item => item.page === 'home' && item.section === 'pricing'
+    );
+    
+    if (pricingContent) {
+      setContent(pricingContent.content);
+    }
+  }, [siteContent]);
 
   const toggleAllPlansFeatures = () => {
     setAllPlansExpanded(prev => !prev);
   };
-
-  const plans = [
-    {
-      id: 'single',
-      name: 'Single',
-      description: 'Ideal solution for beginners.',
-      originalPrice: 1399,
-      currentPrice: 399,
-      discount: 'SAVE 71%',
-      renewalPrice: 999,
-      features: {
-        basic: [
-          { name: '1 website', included: true },
-          { name: 'Managed hosting for WordPress', included: true },
-          { name: 'Free 7-day Horizons trial', included: false },
-          { name: '10 GB SSD storage', included: true },
-          { name: 'Hostinger Website Builder', included: true },
-          { name: 'Free domain (Rs.2,499 value)', included: false },
-          { name: 'Free automatic website migration', included: true }
-        ],
-        extended: [
-          { name: '1 mailbox - free for 1 year', included: true },
-          { name: 'Unlimited free SSL', included: true },
-          { name: 'Weekly backups', included: true },
-          { name: 'WooCommerce', included: false },
-          { name: 'AI SEO ready', included: true },
-          { name: 'Free CDN', included: false },
-          { name: 'Dedicated IP address', included: false },
-          { name: 'Priority support', included: false }
-        ],
-        wordpress: [
-          { name: 'Free 1-click WordPress installation', included: true },
-          { name: 'Free 1-click Google integration', included: true },
-          { name: 'Free pre-built templates', included: true },
-          { name: 'WordPress acceleration (LiteSpeed)', included: true },
-          { name: 'Smart WordPress auto updates', included: true },
-          { name: 'WordPress vulnerabilities scanner', included: true },
-          { name: 'WordPress compatibility checker', included: true },
-          { name: 'WordPress multisite', included: false },
-          { name: 'WP-CLI and SSH', included: false },
-          { name: 'Free Amazon affiliate WordPress plugin', included: false },
-          { name: 'WordPress staging tool', included: false },
-          { name: 'Object cache for WordPress', included: false },
-          { name: 'On-demand backup', included: false },
-          { name: 'WordPress AI tools', included: false }
-        ],
-        builder: [
-          { name: 'AI website builder', included: true },
-          { name: 'Drag & drop editor', included: true },
-          { name: '150 templates', included: true },
-          { name: 'Marketing integrations', included: true },
-          { name: 'AI image generator', included: false },
-          { name: 'AI writer', included: false },
-          { name: 'AI blog generator', included: false },
-          { name: 'AI SEO tools', included: false },
-          { name: 'eCommerce features', included: false },
-          { name: '0% transaction fees', included: false },
-          { name: '100+ payment methods', included: false }
-        ],
-        security: [
-          { name: 'Standard DDoS protection', included: true },
-          { name: 'Malware Scanner', included: true },
-          { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: false },
-          { name: 'Web application firewall', included: true },
-          { name: 'Cloudflare protected nameservers', included: true },
-          { name: 'Secure access manager', included: true }
-        ],
-        support: [
-          { name: '100 GB bandwidth', included: true },
-          { name: '99.9% uptime guarantee', included: true },
-          { name: 'Global Data Centres', included: true },
-          { name: '24/7 customer support', included: true },
-          { name: '30-Day money-back guarantee', included: true }
-        ],
-        technical: [
-          { name: '200,000 files and directories (inodes)', included: true },
-          { name: '25 PHP workers', included: true },
-          { name: '~10,000 visits monthly', included: true },
-          { name: '2 subdomains', included: true },
-          { name: '25 MySQL max user connections', included: true },
-          { name: '2 databases', included: true },
-          { name: 'GIT access', included: true },
-          { name: 'Multiple PHP versions', included: true },
-          { name: 'SSH access', included: false },
-          { name: 'DNS management', included: true },
-          { name: '1 FTP account', included: true },
-          { name: 'Unlimited cronjobs', included: true },
-          { name: 'Cache manager', included: true },
-          { name: 'Powerful control panel', included: true }
-        ]
-      },
-      popular: false,
-      buttonStyle: 'outline'
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      description: 'Everything you need to create your website.',
-      originalPrice: 1999,
-      currentPrice: 599,
-      discount: 'SAVE 70%',
-      renewalPrice: 1699,
-      bonusMonths: '+3 months free',
-      features: {
-        basic: [
-          { name: '25 websites', included: true },
-          { name: 'Managed hosting for WordPress', included: true },
-          { name: 'Free 7-day Horizons trial', included: true },
-          { name: '25 GB SSD storage', included: true },
-          { name: 'Hostinger Website Builder', included: true },
-          { name: 'Free domain (Rs.2,499 value)', included: true },
-          { name: 'Free automatic website migration', included: true }
-        ],
-        extended: [
-          { name: '2 mailboxes per website - free for 1 year', included: true },
-          { name: 'Unlimited free SSL', included: true },
-          { name: 'Weekly backups', included: true },
-          { name: 'Starter WooCommerce', included: true },
-          { name: 'AI SEO ready', included: true },
-          { name: 'Free CDN', included: false },
-          { name: 'Dedicated IP address', included: false },
-          { name: 'Priority support', included: false }
-        ],
-        wordpress: [
-          { name: 'Free 1-click WordPress installation', included: true },
-          { name: 'Free 1-click Google integration', included: true },
-          { name: 'Free pre-built templates', included: true },
-          { name: 'WordPress acceleration (LiteSpeed)', included: true },
-          { name: 'Smart WordPress auto updates', included: true },
-          { name: 'WordPress vulnerabilities scanner', included: true },
-          { name: 'WordPress compatibility checker', included: true },
-          { name: 'WordPress multisite', included: true },
-          { name: 'WP-CLI and SSH', included: true },
-          { name: 'Free Amazon affiliate WordPress plugin', included: false },
-          { name: 'WordPress staging tool', included: false },
-          { name: 'Object cache for WordPress', included: false },
-          { name: 'On-demand backup', included: false },
-          { name: 'WordPress AI tools', included: false }
-        ],
-        builder: [
-          { name: 'AI website builder', included: true },
-          { name: 'Drag & drop editor', included: true },
-          { name: '150 templates', included: true },
-          { name: 'Marketing integrations', included: true },
-          { name: 'AI image generator', included: false },
-          { name: 'AI writer', included: false },
-          { name: 'AI blog generator', included: false },
-          { name: 'AI SEO tools', included: false },
-          { name: 'eCommerce features', included: false },
-          { name: '0% transaction fees', included: false },
-          { name: '100+ payment methods', included: false }
-        ],
-        security: [
-          { name: 'Standard DDoS protection', included: true },
-          { name: 'Malware Scanner', included: true },
-          { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
-          { name: 'Web application firewall', included: true },
-          { name: 'Cloudflare protected nameservers', included: true },
-          { name: 'Secure access manager', included: true }
-        ],
-        support: [
-          { name: 'Unlimited bandwidth', included: true },
-          { name: '99.9% uptime guarantee', included: true },
-          { name: 'Global Data Centres', included: true },
-          { name: '24/7 customer support', included: true },
-          { name: '30-Day money-back guarantee', included: true }
-        ],
-        technical: [
-          { name: '400,000 files and directories (inodes)', included: true },
-          { name: '40 PHP workers', included: true },
-          { name: '~25,000 visits monthly', included: true },
-          { name: '100 subdomains', included: true },
-          { name: '50 MySQL max user connections', included: true },
-          { name: '300 databases', included: true },
-          { name: 'GIT access', included: true },
-          { name: 'Multiple PHP versions', included: true },
-          { name: 'SSH access', included: true },
-          { name: 'DNS management', included: true },
-          { name: 'Unlimited FTP accounts', included: true },
-          { name: 'Unlimited cronjobs', included: true },
-          { name: 'Cache manager', included: true },
-          { name: 'Powerful control panel', included: true }
-        ]
-      },
-      popular: true,
-      buttonStyle: 'filled'
-    },
-    {
-      id: 'business',
-      name: 'Business',
-      description: 'Level up with more power and enhanced features.',
-      originalPrice: 2499,
-      currentPrice: 799,
-      discount: 'SAVE 68%',
-      renewalPrice: 2299,
-      bonusMonths: '+3 months free',
-      features: {
-        basic: [
-          { name: '50 websites', included: true },
-          { name: 'Managed hosting for WordPress', included: true },
-          { name: 'Free 7-day Horizons trial', included: true },
-          { name: '50 GB NVMe storage', included: true },
-          { name: 'Hostinger Website Builder', included: true },
-          { name: 'Free domain (Rs.2,499 value)', included: true },
-          { name: 'Free automatic website migration', included: true }
-        ],
-        extended: [
-          { name: '5 mailboxes per website - free for 1 year', included: true },
-          { name: 'Unlimited free SSL', included: true },
-          { name: 'Daily backups (Rs.7,188 value)', included: true },
-          { name: 'Basic WooCommerce Optimisation', included: true },
-          { name: 'AI SEO ready', included: true },
-          { name: 'Free CDN', included: true },
-          { name: 'Dedicated IP address', included: false },
-          { name: 'Priority support', included: false }
-        ],
-        wordpress: [
-          { name: 'Free 1-click WordPress installation', included: true },
-          { name: 'Free 1-click Google integration', included: true },
-          { name: 'Free pre-built templates', included: true },
-          { name: 'WordPress acceleration (LiteSpeed)', included: true },
-          { name: 'Smart WordPress auto updates', included: true },
-          { name: 'WordPress vulnerabilities scanner', included: true },
-          { name: 'WordPress compatibility checker', included: true },
-          { name: 'WordPress multisite', included: true },
-          { name: 'WP-CLI and SSH', included: true },
-          { name: 'Free Amazon affiliate WordPress plugin', included: true },
-          { name: 'WordPress staging tool', included: true },
-          { name: 'Object cache for WordPress', included: true },
-          { name: 'On-demand backup', included: true },
-          { name: 'WordPress AI tools', included: true }
-        ],
-        builder: [
-          { name: 'AI website builder', included: true },
-          { name: 'Drag & drop editor', included: true },
-          { name: '150 templates', included: true },
-          { name: 'Marketing integrations', included: true },
-          { name: 'AI image generator', included: true },
-          { name: 'AI writer', included: true },
-          { name: 'AI blog generator', included: true },
-          { name: 'AI SEO tools', included: true },
-          { name: 'eCommerce features', included: true },
-          { name: '0% transaction fees', included: true },
-          { name: '100+ payment methods', included: true }
-        ],
-        security: [
-          { name: 'Enhanced DDoS protection', included: true },
-          { name: 'Malware Scanner', included: true },
-          { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
-          { name: 'Web application firewall', included: true },
-          { name: 'Cloudflare protected nameservers', included: true },
-          { name: 'Secure access manager', included: true }
-        ],
-        support: [
-          { name: 'Unlimited bandwidth', included: true },
-          { name: '99.9% uptime guarantee', included: true },
-          { name: 'Global Data Centres', included: true },
-          { name: '24/7 customer support', included: true },
-          { name: '30-Day money-back guarantee', included: true }
-        ],
-        technical: [
-          { name: '600,000 files and directories (inodes)', included: true },
-          { name: '60 PHP workers', included: true },
-          { name: '~100,000 visits monthly', included: true },
-          { name: '100 subdomains', included: true },
-          { name: '75 MySQL max user connections', included: true },
-          { name: '300 databases', included: true },
-          { name: 'GIT access', included: true },
-          { name: 'Multiple PHP versions', included: true },
-          { name: 'SSH access', included: true },
-          { name: 'DNS management', included: true },
-          { name: 'Unlimited FTP accounts', included: true },
-          { name: 'Unlimited cronjobs', included: true },
-          { name: 'Cache manager', included: true },
-          { name: 'Powerful control panel', included: true }
-        ]
-      },
-      popular: false,
-      buttonStyle: 'outline'
-    },
-    {
-      id: 'cloud-startup',
-      name: 'Cloud Startup',
-      description: 'Enjoy optimized performance & powerful resources.',
-      originalPrice: 5699,
-      currentPrice: 2099,
-      discount: 'SAVE 63%',
-      renewalPrice: 5399,
-      bonusMonths: '+3 months free',
-      features: {
-        basic: [
-          { name: '100 websites', included: true },
-          { name: 'Managed hosting for WordPress', included: true },
-          { name: 'Free 7-day Horizons trial', included: true },
-          { name: '100 GB NVMe storage', included: true },
-          { name: 'Hostinger Website Builder', included: true },
-          { name: 'Free domain (Rs.2,499 value)', included: true },
-          { name: 'Free automatic website migration', included: true }
-        ],
-        extended: [
-          { name: '10 mailboxes per website - free for 1 year', included: true },
-          { name: 'Unlimited free SSL', included: true },
-          { name: 'Daily backups (Rs.7,188 value)', included: true },
-          { name: 'Standard WooCommerce', included: true },
-          { name: 'AI SEO ready', included: true },
-          { name: 'Free CDN', included: true },
-          { name: 'Dedicated IP address', included: true },
-          { name: 'Priority support', included: true }
-        ],
-        wordpress: [
-          { name: 'Free 1-click WordPress installation', included: true },
-          { name: 'Free 1-click Google integration', included: true },
-          { name: 'Free pre-built templates', included: true },
-          { name: 'WordPress acceleration (LiteSpeed)', included: true },
-          { name: 'Smart WordPress auto updates', included: true },
-          { name: 'WordPress vulnerabilities scanner', included: true },
-          { name: 'WordPress compatibility checker', included: true },
-          { name: 'WordPress multisite', included: true },
-          { name: 'WP-CLI and SSH', included: true },
-          { name: 'Free Amazon affiliate WordPress plugin', included: true },
-          { name: 'WordPress staging tool', included: true },
-          { name: 'Object cache for WordPress', included: true },
-          { name: 'On-demand backup', included: true },
-          { name: 'WordPress AI tools', included: true }
-        ],
-        builder: [
-          { name: 'AI website builder', included: true },
-          { name: 'Drag & drop editor', included: true },
-          { name: '150 templates', included: true },
-          { name: 'Marketing integrations', included: true },
-          { name: 'AI image generator', included: true },
-          { name: 'AI writer', included: true },
-          { name: 'AI blog generator', included: true },
-          { name: 'AI SEO tools', included: true },
-          { name: 'eCommerce features', included: true },
-          { name: '0% transaction fees', included: true },
-          { name: '100+ payment methods', included: true }
-        ],
-        security: [
-          { name: 'Enhanced DDoS protection', included: true },
-          { name: 'Malware Scanner', included: true },
-          { name: 'Free domain WHOIS privacy protection (Rs.2,499 value)', included: true },
-          { name: 'Web application firewall', included: true },
-          { name: 'Cloudflare protected nameservers', included: true },
-          { name: 'Secure access manager', included: true }
-        ],
-        support: [
-          { name: 'Unlimited bandwidth', included: true },
-          { name: '99.9% uptime guarantee', included: true },
-          { name: 'Global Data Centres', included: true },
-          { name: '24/7 customer support', included: true },
-          { name: '30-Day money-back guarantee', included: true }
-        ],
-        technical: [
-          { name: '2,000,000 files and directories (inodes)', included: true },
-          { name: '100 PHP workers', included: true },
-          { name: '~200,000 visits monthly', included: true },
-          { name: '300 subdomains', included: true },
-          { name: '100 MySQL max user connections', included: true },
-          { name: '800 databases', included: true },
-          { name: 'GIT access', included: true },
-          { name: 'Multiple PHP versions', included: true },
-          { name: 'SSH access', included: true },
-          { name: 'DNS management', included: true },
-          { name: 'Unlimited FTP accounts', included: true },
-          { name: 'Unlimited cronjobs', included: true },
-          { name: 'Cache manager', included: true },
-          { name: 'Powerful control panel', included: true }
-        ]
-      },
-      popular: false,
-      buttonStyle: 'outline'
-    }
-  ];
 
   const renderFeatureList = (features, isExpanded) => {
     const basicFeatures = features.basic || [];
@@ -439,15 +455,15 @@ const PricingSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-text-dark mb-4">
-            Pick your perfect plan
+            {content.title}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Pick your perfect plan and launch online in minutes with AI.
+            {content.subtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {plans.map((plan) => (
+          {(content.plans || []).map((plan) => (
             <div
               key={plan.id}
               className={`bg-white rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 hover:shadow-xl ${
