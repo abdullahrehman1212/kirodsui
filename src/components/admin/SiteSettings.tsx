@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
-import { Save, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Save, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube, Settings, BarChart3 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface SettingsProps {
@@ -542,7 +542,7 @@ const SiteSettings: React.FC<SettingsProps> = ({ type }) => {
             placeholder="<!-- Add custom code for the <head> section here -->"
           />
           <p className="text-xs text-gray-500 mt-1">
-            This code will be added to the <code>&lt;head&gt;</code> section of all pages
+            This code will be added to the <code><head></code> section of all pages
           </p>
         </div>
       </div>
