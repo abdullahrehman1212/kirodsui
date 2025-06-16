@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
-import { Save, Undo, Eye, Image as ImageIcon, Type, Layout, Columns, Rows, Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Save, Undo, Eye, Image as ImageIcon, Type, Layout, Columns, Rows, Plus, Trash2, ArrowUp, ArrowDown, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface ContentEditorProps {
@@ -424,7 +424,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
             </button>
           </div>
           
-          {content.features.map((feature: any, index: number) => (
+          {(content.features || []).map((feature: any, index: number) => (
             <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-medium text-gray-800">Feature {index + 1}</h4>
@@ -440,7 +440,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
                   <button
                     type="button"
                     onClick={() => handleMoveItem('features', index, 'down')}
-                    disabled={index === content.features.length - 1}
+                    disabled={index === (content.features || []).length - 1}
                     className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
                   >
                     <ArrowDown className="h-4 w-4" />
@@ -509,7 +509,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
             </button>
           </div>
           
-          {content.plans.map((plan: any, index: number) => (
+          {(content.plans || []).map((plan: any, index: number) => (
             <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-medium text-gray-800">Plan {index + 1}</h4>
@@ -525,7 +525,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
                   <button
                     type="button"
                     onClick={() => handleMoveItem('plans', index, 'down')}
-                    disabled={index === content.plans.length - 1}
+                    disabled={index === (content.plans || []).length - 1}
                     className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
                   >
                     <ArrowDown className="h-4 w-4" />
@@ -556,6 +556,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
                     onChange={(e) => {
                       setContent(prevContent => {
                         const newContent = { ...prevContent };
+                        if (!newContent.plans) newContent.plans = [];
                         newContent.plans[index].popular = e.target.checked;
                         return newContent;
                       });
@@ -571,11 +572,12 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
                   Features (one per line)
                 </label>
                 <textarea
-                  value={plan.features.join('\n')}
+                  value={(plan.features || []).join('\n')}
                   onChange={(e) => {
                     const features = e.target.value.split('\n').filter(Boolean);
                     setContent(prevContent => {
                       const newContent = { ...prevContent };
+                      if (!newContent.plans) newContent.plans = [];
                       newContent.plans[index].features = features;
                       return newContent;
                     });
@@ -615,7 +617,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
             </button>
           </div>
           
-          {content.testimonials.map((testimonial: any, index: number) => (
+          {(content.testimonials || []).map((testimonial: any, index: number) => (
             <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-medium text-gray-800">Testimonial {index + 1}</h4>
@@ -631,7 +633,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ page, section }) => {
                   <button
                     type="button"
                     onClick={() => handleMoveItem('testimonials', index, 'down')}
-                    disabled={index === content.testimonials.length - 1}
+                    disabled={index === (content.testimonials || []).length - 1}
                     className="p-1 text-gray-500 hover:text-main-green disabled:opacity-30"
                   >
                     <ArrowDown className="h-4 w-4" />
