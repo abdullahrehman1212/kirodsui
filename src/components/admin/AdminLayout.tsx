@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Settings, FileText, Image, Users, Menu, X, LogOut, Home, ShoppingBag, DollarSign, Info, Phone, Globe, Mail, ChevronDown, ChevronRight, Palette, Type, Layout, Navigation, FolderRoot as Footer } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Image, Users, Menu, X, LogOut, Home, ShoppingBag, DollarSign, Info, Phone, Globe, Mail, ChevronDown, ChevronRight, Palette, Type, Layout, Navigation, FolderRoot as Footer, Server } from 'lucide-react';
 import { useAdmin } from '../../contexts/AdminContext';
 
 const AdminLayout = () => {
@@ -148,6 +148,12 @@ const AdminLayout = () => {
       title: 'Media Library',
       icon: <Image className="h-5 w-5" />,
       path: '/admin/media'
+    },
+    {
+      id: 'whmcs',
+      title: 'WHMCS Integration',
+      icon: <Server className="h-5 w-5" />,
+      path: '/admin/whmcs-api'
     },
     {
       id: 'settings',

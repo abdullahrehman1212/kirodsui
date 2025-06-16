@@ -34,6 +34,7 @@ import AdminContentEditor from './pages/admin/AdminContentEditor';
 import AdminLayoutEditor from './pages/admin/AdminLayoutEditor';
 import AdminThemeEditor from './pages/admin/AdminThemeEditor';
 import AdminTypographyEditor from './pages/admin/AdminTypographyEditor';
+import AdminWHMCSAPI from './pages/admin/AdminWHMCSAPI';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
               <Route path="layout/:type" element={<AdminLayoutEditor />} />
               <Route path="layout/theme" element={<AdminThemeEditor />} />
               <Route path="layout/typography" element={<AdminTypographyEditor />} />
+              <Route path="whmcs-api" element={<AdminWHMCSAPI />} />
             </Route>
             
             {/* Public Routes */}
