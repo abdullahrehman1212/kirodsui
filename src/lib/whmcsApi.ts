@@ -1,10 +1,8 @@
 /**
  * WHMCS API Client
  * 
- * This module provides functions to interact with the WHMCS API.
+ * This module provides functions to interact with the WHMCS API through your backend system.
  */
-
-import { supabase } from './supabase';
 
 // Define types for WHMCS API responses
 interface WHMCSApiResponse {
@@ -48,110 +46,16 @@ interface WHMCSTicket {
 }
 
 /**
- * Get WHMCS API credentials from Supabase settings
- */
-const getWHMCSCredentials = async () => {
-  try {
-    const { data: apiUrlData } = await supabase
-      .from('site_settings')
-      .select('setting_value')
-      .eq('setting_key', 'whmcs_apiUrl')
-      .single();
-      
-    const { data: apiIdentifierData } = await supabase
-      .from('site_settings')
-      .select('setting_value')
-      .eq('setting_key', 'whmcs_apiIdentifier')
-      .single();
-      
-    const { data: apiSecretData } = await supabase
-      .from('site_settings')
-      .select('setting_value')
-      .eq('setting_key', 'whmcs_apiSecret')
-      .single();
-      
-    const { data: accessKeyData } = await supabase
-      .from('site_settings')
-      .select('setting_value')
-      .eq('setting_key', 'whmcs_accessKey')
-      .single();
-    
-    return {
-      apiUrl: apiUrlData?.setting_value,
-      apiIdentifier: apiIdentifierData?.setting_value,
-      apiSecret: apiSecretData?.setting_value,
-      accessKey: accessKeyData?.setting_value
-    };
-  } catch (error) {
-    console.error('Error fetching WHMCS credentials:', error);
-    throw new Error('Failed to get WHMCS API credentials');
-  }
-};
-
-/**
- * Log API call to database (if enabled)
- */
-const logApiCall = async (action: string, params: any, response: any, status: string) => {
-  try {
-    const { data: logSettingData } = await supabase
-      .from('site_settings')
-      .select('setting_value')
-      .eq('setting_key', 'whmcs_logApiCalls')
-      .single();
-    
-    const shouldLog = logSettingData?.setting_value !== false;
-    
-    if (shouldLog) {
-      // Create a sanitized version of params without sensitive data
-      const sanitizedParams = { ...params };
-      if (sanitizedParams.password) sanitizedParams.password = '********';
-      if (sanitizedParams.secret) sanitizedParams.secret = '********';
-      if (sanitizedParams.accesskey) sanitizedParams.accesskey = '********';
-      
-      // Log to database
-      await supabase.from('whmcs_api_logs').insert([{
-        action,
-        params: sanitizedParams,
-        response,
-        status
-      }]);
-    }
-  } catch (error) {
-    console.error('Error logging API call:', error);
-  }
-};
-
-/**
- * Make a request to the WHMCS API
+ * Make a request to the backend API that communicates with WHMCS
  */
 const makeApiRequest = async (action: string, params: Record<string, any> = {}): Promise<WHMCSApiResponse> => {
   try {
-    const credentials = await getWHMCSCredentials();
-    
-    if (!credentials.apiUrl || !credentials.apiIdentifier || !credentials.apiSecret) {
-      throw new Error('WHMCS API credentials not configured');
-    }
-    
-    const requestParams = {
-      identifier: credentials.apiIdentifier,
-      secret: credentials.apiSecret,
-      action,
-      responsetype: 'json',
-      ...params
-    };
-    
-    if (credentials.accessKey) {
-      requestParams.accesskey = credentials.accessKey;
-    }
-    
-    console.log(`Making WHMCS API request to ${credentials.apiUrl} for action: ${action}`);
-    
-    const response = await fetch(credentials.apiUrl, {
+    const response = await fetch(`/api/whmcs/${action}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: new URLSearchParams(requestParams)
+      body: JSON.stringify(params)
     });
     
     if (!response.ok) {
@@ -159,16 +63,9 @@ const makeApiRequest = async (action: string, params: Record<string, any> = {}):
     }
     
     const data = await response.json();
-    
-    // Log the API call
-    await logApiCall(action, requestParams, data, data.result);
-    
     return data;
   } catch (error) {
     console.error(`WHMCS API Error (${action}):`, error);
-    
-    // Log the failed API call
-    await logApiCall(action, params, { error: error.message }, 'error');
     
     return {
       result: 'error',
@@ -181,19 +78,17 @@ const makeApiRequest = async (action: string, params: Record<string, any> = {}):
  * Test the WHMCS API connection
  */
 export const testApiConnection = async (): Promise<WHMCSApiResponse> => {
-  return makeApiRequest('GetSystemUrl');
+  return makeApiRequest('test-connection');
 };
 
 /**
  * Get clients from WHMCS
  */
 export const getClients = async (params: Record<string, any> = {}): Promise<WHMCSClient[]> => {
-  const response = await makeApiRequest('GetClients', params);
+  const response = await makeApiRequest('get-clients', params);
   
-  if (response.result === 'success' && response.clients && response.clients.client) {
-    return Array.isArray(response.clients.client) 
-      ? response.clients.client 
-      : [response.clients.client];
+  if (response.result === 'success' && response.clients) {
+    return response.clients;
   }
   
   return [];
@@ -203,7 +98,7 @@ export const getClients = async (params: Record<string, any> = {}): Promise<WHMC
  * Get a specific client from WHMCS
  */
 export const getClient = async (clientId: number): Promise<WHMCSClient | null> => {
-  const response = await makeApiRequest('GetClientsDetails', { clientid: clientId });
+  const response = await makeApiRequest('get-client', { clientid: clientId });
   
   if (response.result === 'success') {
     return response.client;
@@ -216,26 +111,24 @@ export const getClient = async (clientId: number): Promise<WHMCSClient | null> =
  * Create a client in WHMCS
  */
 export const createClient = async (clientData: Record<string, any>): Promise<WHMCSApiResponse> => {
-  return makeApiRequest('AddClient', clientData);
+  return makeApiRequest('create-client', clientData);
 };
 
 /**
  * Update a client in WHMCS
  */
 export const updateClient = async (clientId: number, clientData: Record<string, any>): Promise<WHMCSApiResponse> => {
-  return makeApiRequest('UpdateClient', { clientid: clientId, ...clientData });
+  return makeApiRequest('update-client', { clientid: clientId, ...clientData });
 };
 
 /**
  * Get products from WHMCS
  */
 export const getProducts = async (params: Record<string, any> = {}): Promise<WHMCSProduct[]> => {
-  const response = await makeApiRequest('GetProducts', params);
+  const response = await makeApiRequest('get-products', params);
   
-  if (response.result === 'success' && response.products && response.products.product) {
-    return Array.isArray(response.products.product) 
-      ? response.products.product 
-      : [response.products.product];
+  if (response.result === 'success' && response.products) {
+    return response.products;
   }
   
   return [];
@@ -245,12 +138,10 @@ export const getProducts = async (params: Record<string, any> = {}): Promise<WHM
  * Get invoices from WHMCS
  */
 export const getInvoices = async (params: Record<string, any> = {}): Promise<WHMCSInvoice[]> => {
-  const response = await makeApiRequest('GetInvoices', params);
+  const response = await makeApiRequest('get-invoices', params);
   
-  if (response.result === 'success' && response.invoices && response.invoices.invoice) {
-    return Array.isArray(response.invoices.invoice) 
-      ? response.invoices.invoice 
-      : [response.invoices.invoice];
+  if (response.result === 'success' && response.invoices) {
+    return response.invoices;
   }
   
   return [];
@@ -260,19 +151,17 @@ export const getInvoices = async (params: Record<string, any> = {}): Promise<WHM
  * Create an invoice in WHMCS
  */
 export const createInvoice = async (invoiceData: Record<string, any>): Promise<WHMCSApiResponse> => {
-  return makeApiRequest('CreateInvoice', invoiceData);
+  return makeApiRequest('create-invoice', invoiceData);
 };
 
 /**
  * Get tickets from WHMCS
  */
 export const getTickets = async (params: Record<string, any> = {}): Promise<WHMCSTicket[]> => {
-  const response = await makeApiRequest('GetTickets', params);
+  const response = await makeApiRequest('get-tickets', params);
   
-  if (response.result === 'success' && response.tickets && response.tickets.ticket) {
-    return Array.isArray(response.tickets.ticket) 
-      ? response.tickets.ticket 
-      : [response.tickets.ticket];
+  if (response.result === 'success' && response.tickets) {
+    return response.tickets;
   }
   
   return [];
@@ -282,7 +171,7 @@ export const getTickets = async (params: Record<string, any> = {}): Promise<WHMC
  * Create a ticket in WHMCS
  */
 export const createTicket = async (ticketData: Record<string, any>): Promise<WHMCSApiResponse> => {
-  return makeApiRequest('OpenTicket', ticketData);
+  return makeApiRequest('create-ticket', ticketData);
 };
 
 /**
@@ -298,19 +187,17 @@ export const addTicketReply = async (ticketId: number, message: string, clientId
     params.clientid = clientId;
   }
   
-  return makeApiRequest('AddTicketReply', params);
+  return makeApiRequest('add-ticket-reply', params);
 };
 
 /**
  * Get orders from WHMCS
  */
 export const getOrders = async (params: Record<string, any> = {}): Promise<any[]> => {
-  const response = await makeApiRequest('GetOrders', params);
+  const response = await makeApiRequest('get-orders', params);
   
-  if (response.result === 'success' && response.orders && response.orders.order) {
-    return Array.isArray(response.orders.order) 
-      ? response.orders.order 
-      : [response.orders.order];
+  if (response.result === 'success' && response.orders) {
+    return response.orders;
   }
   
   return [];
@@ -320,12 +207,10 @@ export const getOrders = async (params: Record<string, any> = {}): Promise<any[]
  * Get services/hosting accounts from WHMCS
  */
 export const getServices = async (params: Record<string, any> = {}): Promise<any[]> => {
-  const response = await makeApiRequest('GetClientsProducts', params);
+  const response = await makeApiRequest('get-services', params);
   
-  if (response.result === 'success' && response.products && response.products.product) {
-    return Array.isArray(response.products.product) 
-      ? response.products.product 
-      : [response.products.product];
+  if (response.result === 'success' && response.services) {
+    return response.services;
   }
   
   return [];
@@ -335,12 +220,10 @@ export const getServices = async (params: Record<string, any> = {}): Promise<any
  * Get domains from WHMCS
  */
 export const getDomains = async (params: Record<string, any> = {}): Promise<any[]> => {
-  const response = await makeApiRequest('GetClientsDomains', params);
+  const response = await makeApiRequest('get-domains', params);
   
-  if (response.result === 'success' && response.domains && response.domains.domain) {
-    return Array.isArray(response.domains.domain) 
-      ? response.domains.domain 
-      : [response.domains.domain];
+  if (response.result === 'success' && response.domains) {
+    return response.domains;
   }
   
   return [];
@@ -350,12 +233,10 @@ export const getDomains = async (params: Record<string, any> = {}): Promise<any[
  * Get WHMCS admin users
  */
 export const getAdminUsers = async (): Promise<any[]> => {
-  const response = await makeApiRequest('GetAdminUsers');
+  const response = await makeApiRequest('get-admin-users');
   
-  if (response.result === 'success' && response.users && response.users.user) {
-    return Array.isArray(response.users.user) 
-      ? response.users.user 
-      : [response.users.user];
+  if (response.result === 'success' && response.users) {
+    return response.users;
   }
   
   return [];
@@ -365,7 +246,7 @@ export const getAdminUsers = async (): Promise<any[]> => {
  * Get system stats from WHMCS
  */
 export const getStats = async (): Promise<any> => {
-  const response = await makeApiRequest('GetStats');
+  const response = await makeApiRequest('get-stats');
   
   if (response.result === 'success') {
     return response.stats;
