@@ -19,7 +19,8 @@ import {
   Globe,
   Server,
   Clock,
-  Printer
+  Printer,
+  XCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
