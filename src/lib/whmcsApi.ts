@@ -91,7 +91,7 @@ const getWHMCSCredentials = async () => {
 /**
  * Log API call to database (if enabled)
  */
-const logApiCall = async (action: string, params: any, response: any) => {
+const logApiCall = async (action: string, params: any, response: any, status: string) => {
   try {
     const { data: logSettingData } = await supabase
       .from('site_settings')
@@ -108,16 +108,13 @@ const logApiCall = async (action: string, params: any, response: any) => {
       if (sanitizedParams.secret) sanitizedParams.secret = '********';
       if (sanitizedParams.accesskey) sanitizedParams.accesskey = '********';
       
-      // Log to console for demo purposes
-      // In a real implementation, you would log to a database table
-      console.log('WHMCS API Call:', {
-        timestamp: new Date().toISOString(),
+      // Log to database
+      await supabase.from('whmcs_api_logs').insert([{
         action,
         params: sanitizedParams,
-        response: response.result === 'success' 
-          ? { result: 'success', totalresults: response.totalresults } 
-          : { result: 'error', message: response.message }
-      });
+        response,
+        status
+      }]);
     }
   } catch (error) {
     console.error('Error logging API call:', error);
@@ -147,6 +144,8 @@ const makeApiRequest = async (action: string, params: Record<string, any> = {}):
       requestParams.accesskey = credentials.accessKey;
     }
     
+    console.log(`Making WHMCS API request to ${credentials.apiUrl} for action: ${action}`);
+    
     const response = await fetch(credentials.apiUrl, {
       method: 'POST',
       headers: {
@@ -162,11 +161,15 @@ const makeApiRequest = async (action: string, params: Record<string, any> = {}):
     const data = await response.json();
     
     // Log the API call
-    await logApiCall(action, requestParams, data);
+    await logApiCall(action, requestParams, data, data.result);
     
     return data;
   } catch (error) {
     console.error(`WHMCS API Error (${action}):`, error);
+    
+    // Log the failed API call
+    await logApiCall(action, params, { error: error.message }, 'error');
+    
     return {
       result: 'error',
       message: error.message || 'An unknown error occurred'
@@ -188,7 +191,9 @@ export const getClients = async (params: Record<string, any> = {}): Promise<WHMC
   const response = await makeApiRequest('GetClients', params);
   
   if (response.result === 'success' && response.clients && response.clients.client) {
-    return response.clients.client;
+    return Array.isArray(response.clients.client) 
+      ? response.clients.client 
+      : [response.clients.client];
   }
   
   return [];
@@ -228,7 +233,9 @@ export const getProducts = async (params: Record<string, any> = {}): Promise<WHM
   const response = await makeApiRequest('GetProducts', params);
   
   if (response.result === 'success' && response.products && response.products.product) {
-    return response.products.product;
+    return Array.isArray(response.products.product) 
+      ? response.products.product 
+      : [response.products.product];
   }
   
   return [];
@@ -241,7 +248,9 @@ export const getInvoices = async (params: Record<string, any> = {}): Promise<WHM
   const response = await makeApiRequest('GetInvoices', params);
   
   if (response.result === 'success' && response.invoices && response.invoices.invoice) {
-    return response.invoices.invoice;
+    return Array.isArray(response.invoices.invoice) 
+      ? response.invoices.invoice 
+      : [response.invoices.invoice];
   }
   
   return [];
@@ -261,7 +270,9 @@ export const getTickets = async (params: Record<string, any> = {}): Promise<WHMC
   const response = await makeApiRequest('GetTickets', params);
   
   if (response.result === 'success' && response.tickets && response.tickets.ticket) {
-    return response.tickets.ticket;
+    return Array.isArray(response.tickets.ticket) 
+      ? response.tickets.ticket 
+      : [response.tickets.ticket];
   }
   
   return [];
@@ -290,6 +301,79 @@ export const addTicketReply = async (ticketId: number, message: string, clientId
   return makeApiRequest('AddTicketReply', params);
 };
 
+/**
+ * Get orders from WHMCS
+ */
+export const getOrders = async (params: Record<string, any> = {}): Promise<any[]> => {
+  const response = await makeApiRequest('GetOrders', params);
+  
+  if (response.result === 'success' && response.orders && response.orders.order) {
+    return Array.isArray(response.orders.order) 
+      ? response.orders.order 
+      : [response.orders.order];
+  }
+  
+  return [];
+};
+
+/**
+ * Get services/hosting accounts from WHMCS
+ */
+export const getServices = async (params: Record<string, any> = {}): Promise<any[]> => {
+  const response = await makeApiRequest('GetClientsProducts', params);
+  
+  if (response.result === 'success' && response.products && response.products.product) {
+    return Array.isArray(response.products.product) 
+      ? response.products.product 
+      : [response.products.product];
+  }
+  
+  return [];
+};
+
+/**
+ * Get domains from WHMCS
+ */
+export const getDomains = async (params: Record<string, any> = {}): Promise<any[]> => {
+  const response = await makeApiRequest('GetClientsDomains', params);
+  
+  if (response.result === 'success' && response.domains && response.domains.domain) {
+    return Array.isArray(response.domains.domain) 
+      ? response.domains.domain 
+      : [response.domains.domain];
+  }
+  
+  return [];
+};
+
+/**
+ * Get WHMCS admin users
+ */
+export const getAdminUsers = async (): Promise<any[]> => {
+  const response = await makeApiRequest('GetAdminUsers');
+  
+  if (response.result === 'success' && response.users && response.users.user) {
+    return Array.isArray(response.users.user) 
+      ? response.users.user 
+      : [response.users.user];
+  }
+  
+  return [];
+};
+
+/**
+ * Get system stats from WHMCS
+ */
+export const getStats = async (): Promise<any> => {
+  const response = await makeApiRequest('GetStats');
+  
+  if (response.result === 'success') {
+    return response.stats;
+  }
+  
+  return null;
+};
+
 export default {
   testApiConnection,
   getClients,
@@ -301,5 +385,10 @@ export default {
   createInvoice,
   getTickets,
   createTicket,
-  addTicketReply
+  addTicketReply,
+  getOrders,
+  getServices,
+  getDomains,
+  getAdminUsers,
+  getStats
 };

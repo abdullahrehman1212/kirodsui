@@ -11,7 +11,8 @@ import {
   ChevronRight,
   CheckCircle,
   XCircle,
-  Filter
+  Filter,
+  AlertTriangle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import whmcsApi from '../../lib/whmcsApi';
@@ -35,6 +36,7 @@ const WHMCSClientManager = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [isEnabled, setIsEnabled] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if WHMCS client management is enabled
@@ -51,58 +53,49 @@ const WHMCSClientManager = () => {
 
   const fetchClients = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      // In a real implementation, this would call the actual WHMCS API
-      // For demo purposes, we'll use mock data
-      const mockClients = [
-        {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          email: 'john.doe@example.com',
-          status: 'Active',
-          datecreated: '2023-01-15'
-        },
-        {
-          id: 2,
-          firstname: 'Jane',
-          lastname: 'Smith',
-          email: 'jane.smith@example.com',
-          status: 'Active',
-          datecreated: '2023-02-20'
-        },
-        {
-          id: 3,
-          firstname: 'Robert',
-          lastname: 'Johnson',
-          email: 'robert.johnson@example.com',
-          status: 'Inactive',
-          datecreated: '2023-03-10'
-        },
-        {
-          id: 4,
-          firstname: 'Emily',
-          lastname: 'Williams',
-          email: 'emily.williams@example.com',
-          status: 'Active',
-          datecreated: '2023-04-05'
-        },
-        {
-          id: 5,
-          firstname: 'Michael',
-          lastname: 'Brown',
-          email: 'michael.brown@example.com',
-          status: 'Pending',
-          datecreated: '2023-05-12'
+      // Fetch clients from WHMCS API
+      const clientsData = await whmcsApi.getClients({
+        limitstart: (currentPage - 1) * 10,
+        limitnum: 10,
+        search: searchTerm || null,
+        status: statusFilter || null
+      });
+      
+      if (clientsData && clientsData.length > 0) {
+        setClients(clientsData);
+        
+        // Get total count for pagination
+        const totalResponse = await whmcsApi.getClients({ 
+          limitstart: 0, 
+          limitnum: 1,
+          search: searchTerm || null,
+          status: statusFilter || null,
+          countonly: true 
+        });
+        
+        if (totalResponse && totalResponse.totalresults) {
+          setTotalPages(Math.ceil(totalResponse.totalresults / 10));
+        } else {
+          setTotalPages(Math.ceil(clientsData.length / 10));
         }
-      ];
-      
-      setClients(mockClients);
-      setTotalPages(Math.ceil(mockClients.length / 10)); // Assuming 10 clients per page
-      
-      toast.success('Clients loaded successfully');
+        
+        toast.success('Clients loaded successfully');
+      } else {
+        setClients([]);
+        setTotalPages(1);
+        
+        if (searchTerm || statusFilter) {
+          toast.info('No clients found matching your criteria');
+        } else {
+          toast.info('No clients found');
+        }
+      }
     } catch (error) {
       console.error('Error fetching clients:', error);
+      setError('Failed to load clients. Please check your API configuration.');
       toast.error('Failed to load clients');
     } finally {
       setIsLoading(false);
@@ -111,6 +104,7 @@ const WHMCSClientManager = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchClients();
   };
 
@@ -118,17 +112,6 @@ const WHMCSClientManager = () => {
     setStatusFilter(e.target.value);
     setCurrentPage(1);
   };
-
-  const filteredClients = clients.filter(client => {
-    const matchesSearch = searchTerm === '' || 
-      client.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    const matchesStatus = statusFilter === '' || client.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -138,17 +121,21 @@ const WHMCSClientManager = () => {
         return 'bg-red-100 text-red-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
+      case 'closed':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const filteredClients = clients;
 
   if (!isEnabled) {
     return (
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
         <div className="flex">
           <div className="flex-shrink-0">
-            <XCircle className="h-5 w-5 text-yellow-400" />
+            <AlertTriangle className="h-5 w-5 text-yellow-400" />
           </div>
           <div className="ml-3">
             <p className="text-sm text-yellow-700">
@@ -160,12 +147,32 @@ const WHMCSClientManager = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <AlertTriangle className="h-5 w-5 text-red-400" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">
+              {error}
+            </p>
+            <p className="text-sm text-red-700 mt-2">
+              Please check your WHMCS API configuration in the settings.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-            <Users className="h-5 w-5" />
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Users className="h-5 w-5 text-blue-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-800">WHMCS Client Manager</h3>
         </div>
@@ -189,7 +196,7 @@ const WHMCSClientManager = () => {
         </div>
       </div>
       
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0 md:space-x-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0 md:space-x-4 mb-6">
         <form onSubmit={handleSearch} className="flex-1">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -216,6 +223,7 @@ const WHMCSClientManager = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
             <option value="Pending">Pending</option>
+            <option value="Closed">Closed</option>
           </select>
         </div>
       </div>
@@ -352,7 +360,7 @@ const WHMCSClientManager = () => {
           <p className="text-gray-600 mb-6">
             {searchTerm || statusFilter
               ? `No results for your search. Try different search terms or filters.`
-              : 'No clients have been added yet.'}
+              : "No clients have been added yet."}
           </p>
           {!searchTerm && !statusFilter && (
             <button

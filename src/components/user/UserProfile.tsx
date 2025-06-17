@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAdmin } from '../../contexts/AdminContext';
 import { 
   User, 
   Mail, 
@@ -13,7 +14,7 @@ import {
   Shield,
   CreditCard,
   AlertTriangle,
-  Plus
+  Plus as PlusIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -633,7 +634,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userData }) => {
               </div>
               
               <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main-green transition-colors duration-200">
-                <Plus className="h-4 w-4 mr-2" />
+                <PlusIcon className="h-4 w-4 mr-2" />
                 Add Payment Method
               </button>
             </div>

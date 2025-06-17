@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import WHMCSAPISettings from '../../components/admin/WHMCSAPISettings';
@@ -14,6 +14,8 @@ import WHMCSPlanManager from '../../components/admin/WHMCSPlanManager';
 import WHMCSReportManager from '../../components/admin/WHMCSReportManager';
 import WHMCSServiceManager from '../../components/admin/WHMCSServiceManager';
 import WHMCSDomainManager from '../../components/admin/WHMCSDomainManager';
+import whmcsApi from '../../lib/whmcsApi';
+import toast from 'react-hot-toast';
 
 import { 
   Server, 
@@ -59,6 +61,56 @@ import {
 const AdminWHMCSManager = () => {
   const { isAuthenticated, isLoading } = useAdmin();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [apiStatus, setApiStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    checkApiConnection();
+    if (activeTab === 'dashboard') {
+      fetchStats();
+    }
+  }, [activeTab]);
+
+  const checkApiConnection = async () => {
+    setApiStatus('checking');
+    
+    try {
+      const response = await whmcsApi.testApiConnection();
+      
+      if (response.result === 'success') {
+        setApiStatus('connected');
+        setError(null);
+      } else {
+        setApiStatus('disconnected');
+        setError('Could not connect to WHMCS API. Please check your API configuration.');
+      }
+    } catch (error) {
+      console.error('Error checking API connection:', error);
+      setApiStatus('disconnected');
+      setError('Error connecting to WHMCS API. Please check your configuration.');
+    }
+  };
+
+  const fetchStats = async () => {
+    setStatsLoading(true);
+    
+    try {
+      const statsData = await whmcsApi.getStats();
+      
+      if (statsData) {
+        setStats(statsData);
+      } else {
+        toast.error('Failed to load WHMCS statistics');
+      }
+    } catch (error) {
+      console.error('Error fetching WHMCS stats:', error);
+      toast.error('Failed to load WHMCS statistics');
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -73,9 +125,34 @@ const AdminWHMCSManager = () => {
   }
 
   const renderActiveTab = () => {
+    if (apiStatus === 'disconnected' && activeTab !== 'settings') {
+      return (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="h-5 w-5 text-red-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">
+                {error || 'WHMCS API connection failed. Please check your API configuration.'}
+              </p>
+              <p className="text-sm text-red-700 mt-2">
+                Go to the <button 
+                  onClick={() => setActiveTab('settings')} 
+                  className="font-medium underline"
+                >
+                  API Settings
+                </button> tab to configure your WHMCS API credentials.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'dashboard':
-        return <WHMCSDashboard />;
+        return <WHMCSDashboard stats={stats} isLoading={statsLoading} />;
       case 'settings':
         return <WHMCSAPISettings />;
       case 'clients':
@@ -103,7 +180,7 @@ const AdminWHMCSManager = () => {
       case 'permissions':
         return <WHMCSPermissionsManager />;
       default:
-        return <WHMCSDashboard />;
+        return <WHMCSDashboard stats={stats} isLoading={statsLoading} />;
     }
   };
 
@@ -283,7 +360,37 @@ const AdminWHMCSManager = () => {
 };
 
 // WHMCS Dashboard Component
-const WHMCSDashboard = () => {
+interface WHMCSDashboardProps {
+  stats: any;
+  isLoading: boolean;
+}
+
+const WHMCSDashboard: React.FC<WHMCSDashboardProps> = ({ stats, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-main-green"></div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <AlertTriangle className="h-5 w-5 text-yellow-400" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-yellow-700">
+              Could not load WHMCS statistics. Please check your API configuration.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -304,10 +411,10 @@ const WHMCSDashboard = () => {
             </div>
             <h4 className="text-lg font-medium text-gray-800">Clients</h4>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-1">128</div>
-          <p className="text-sm text-gray-600">5 new this month</p>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{stats.clients_total || '0'}</div>
+          <p className="text-sm text-gray-600">{stats.clients_active || '0'} active</p>
           <div className="mt-4 flex items-center text-sm text-green-600">
-            <span className="font-medium">↑ 12%</span>
+            <span className="font-medium">↑ {stats.clients_growth || '0'}%</span>
             <span className="ml-1">from last month</span>
           </div>
         </div>
@@ -319,10 +426,10 @@ const WHMCSDashboard = () => {
             </div>
             <h4 className="text-lg font-medium text-gray-800">Revenue</h4>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-1">$12,450</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">${stats.income_today || '0'}</div>
           <p className="text-sm text-gray-600">This month</p>
           <div className="mt-4 flex items-center text-sm text-green-600">
-            <span className="font-medium">↑ 8%</span>
+            <span className="font-medium">↑ {stats.income_growth || '0'}%</span>
             <span className="ml-1">from last month</span>
           </div>
         </div>
@@ -334,10 +441,10 @@ const WHMCSDashboard = () => {
             </div>
             <h4 className="text-lg font-medium text-gray-800">Tickets</h4>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-1">24</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{stats.tickets_open || '0'}</div>
           <p className="text-sm text-gray-600">Open tickets</p>
           <div className="mt-4 flex items-center text-sm text-red-600">
-            <span className="font-medium">↑ 5%</span>
+            <span className="font-medium">↑ {stats.tickets_growth || '0'}%</span>
             <span className="ml-1">from last week</span>
           </div>
         </div>
@@ -349,10 +456,10 @@ const WHMCSDashboard = () => {
             </div>
             <h4 className="text-lg font-medium text-gray-800">Orders</h4>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-1">36</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{stats.orders_today || '0'}</div>
           <p className="text-sm text-gray-600">This month</p>
           <div className="mt-4 flex items-center text-sm text-green-600">
-            <span className="font-medium">↑ 18%</span>
+            <span className="font-medium">↑ {stats.orders_growth || '0'}%</span>
             <span className="ml-1">from last month</span>
           </div>
         </div>
@@ -369,57 +476,27 @@ const WHMCSDashboard = () => {
             </button>
           </div>
           <div className="space-y-4">
-            <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <UserPlus className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-800">New client registered</div>
-                  <div className="text-xs text-gray-500">2 hours ago</div>
+            {stats.recent_activity ? (
+              stats.recent_activity.map((activity, index) => (
+                <div key={index} className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Activity className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-gray-800">{activity.description}</div>
+                      <div className="text-xs text-gray-500">{activity.time}</div>
+                    </div>
+                    <div className="text-sm text-gray-600">{activity.details}</div>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600">John Smith (john.smith@example.com)</div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <Activity className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No recent activity to display</p>
               </div>
-            </div>
-            
-            <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <div className="bg-green-100 p-2 rounded-lg">
-                <CreditCard className="h-5 w-5 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-800">Invoice #1001 paid</div>
-                  <div className="text-xs text-gray-500">5 hours ago</div>
-                </div>
-                <div className="text-sm text-gray-600">$99.99 - Premium Hosting Plan</div>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <MessageCircle className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-800">New support ticket</div>
-                  <div className="text-xs text-gray-500">1 day ago</div>
-                </div>
-                <div className="text-sm text-gray-600">Ticket #2345 - "Website Migration Question"</div>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <div className="bg-yellow-100 p-2 rounded-lg">
-                <ShoppingCart className="h-5 w-5 text-yellow-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-800">New order placed</div>
-                  <div className="text-xs text-gray-500">2 days ago</div>
-                </div>
-                <div className="text-sm text-gray-600">Order #3456 - Cloud Hosting Package</div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -445,22 +522,22 @@ const WHMCSDashboard = () => {
             
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">WHMCS Version</div>
-              <div className="text-sm font-medium text-gray-800">8.6.1</div>
+              <div className="text-sm font-medium text-gray-800">{stats.whmcs_version || 'Unknown'}</div>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">Last Sync</div>
-              <div className="text-sm font-medium text-gray-800">10 minutes ago</div>
+              <div className="text-sm font-medium text-gray-800">{stats.last_sync || 'Never'}</div>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">Active Services</div>
-              <div className="text-sm font-medium text-gray-800">245</div>
+              <div className="text-sm font-medium text-gray-800">{stats.services_active || '0'}</div>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">Active Domains</div>
-              <div className="text-sm font-medium text-gray-800">189</div>
+              <div className="text-sm font-medium text-gray-800">{stats.domains_active || '0'}</div>
             </div>
           </div>
           

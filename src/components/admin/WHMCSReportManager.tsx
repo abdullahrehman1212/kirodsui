@@ -20,9 +20,10 @@ import {
   Server,
   Clock,
   Printer,
-  XCircle
+  AlertTriangle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import whmcsApi from '../../lib/whmcsApi';
 
 const WHMCSReportManager = () => {
   const { siteSettings } = useAdmin();
@@ -31,6 +32,7 @@ const WHMCSReportManager = () => {
   const [dateRange, setDateRange] = useState('month');
   const [isEnabled, setIsEnabled] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if WHMCS API is enabled
@@ -47,157 +49,136 @@ const WHMCSReportManager = () => {
 
   const fetchReportData = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      // In a real implementation, this would call the actual WHMCS API
-      // For demo purposes, we'll use mock data
+      // Fetch real data from WHMCS API
+      const stats = await whmcsApi.getStats();
       
-      // Generate mock data based on report type
-      let mockData;
+      if (!stats) {
+        setError('Failed to fetch statistics from WHMCS API');
+        setReportData(null);
+        return;
+      }
+      
+      // Process the data based on report type
+      let processedData;
       
       switch (reportType) {
         case 'income':
-          mockData = {
+          processedData = {
             title: 'Income Report',
             subtitle: getDateRangeText(),
-            total: '$12,450.00',
-            change: '+8.5%',
-            chartData: [
-              { label: 'Jan', value: 8500 },
-              { label: 'Feb', value: 9200 },
-              { label: 'Mar', value: 8900 },
-              { label: 'Apr', value: 9800 },
-              { label: 'May', value: 10500 },
-              { label: 'Jun', value: 12450 }
-            ],
+            total: stats.income_today ? `$${stats.income_today}` : '$0.00',
+            change: stats.income_growth ? `${stats.income_growth}%` : '+0%',
+            chartData: processIncomeData(stats),
             breakdown: [
-              { category: 'Hosting Services', amount: '$7,850.00', percentage: 63 },
-              { category: 'Domain Registrations', amount: '$2,100.00', percentage: 17 },
-              { category: 'SSL Certificates', amount: '$1,500.00', percentage: 12 },
-              { category: 'Other Services', amount: '$1,000.00', percentage: 8 }
+              { category: 'Hosting Services', amount: stats.income_hosting || '$0.00', percentage: 60 },
+              { category: 'Domain Registrations', amount: stats.income_domains || '$0.00', percentage: 20 },
+              { category: 'SSL Certificates', amount: stats.income_ssl || '$0.00', percentage: 10 },
+              { category: 'Other Services', amount: stats.income_other || '$0.00', percentage: 10 }
             ]
           };
           break;
         case 'clients':
-          mockData = {
+          processedData = {
             title: 'Client Report',
             subtitle: getDateRangeText(),
-            total: '128',
-            change: '+12%',
-            chartData: [
-              { label: 'Jan', value: 98 },
-              { label: 'Feb', value: 105 },
-              { label: 'Mar', value: 112 },
-              { label: 'Apr', value: 118 },
-              { label: 'May', value: 123 },
-              { label: 'Jun', value: 128 }
-            ],
+            total: stats.clients_total || '0',
+            change: stats.clients_growth ? `${stats.clients_growth}%` : '+0%',
+            chartData: processClientData(stats),
             breakdown: [
-              { category: 'Active Clients', amount: '112', percentage: 87.5 },
-              { category: 'Inactive Clients', amount: '16', percentage: 12.5 }
+              { category: 'Active Clients', amount: stats.clients_active || '0', percentage: 80 },
+              { category: 'Inactive Clients', amount: stats.clients_inactive || '0', percentage: 20 }
             ],
             details: {
-              newClients: 5,
-              returningClients: 123,
-              averageSpend: '$97.27'
+              newClients: stats.clients_new || 0,
+              returningClients: (stats.clients_total - stats.clients_new) || 0,
+              averageSpend: stats.client_avg_spend || '$0.00'
             }
           };
           break;
         case 'orders':
-          mockData = {
+          processedData = {
             title: 'Order Report',
             subtitle: getDateRangeText(),
-            total: '36',
-            change: '+18%',
-            chartData: [
-              { label: 'Jan', value: 22 },
-              { label: 'Feb', value: 25 },
-              { label: 'Mar', value: 28 },
-              { label: 'Apr', value: 30 },
-              { label: 'May', value: 32 },
-              { label: 'Jun', value: 36 }
-            ],
+            total: stats.orders_today || '0',
+            change: stats.orders_growth ? `${stats.orders_growth}%` : '+0%',
+            chartData: processOrderData(stats),
             breakdown: [
-              { category: 'Hosting Orders', amount: '18', percentage: 50 },
-              { category: 'Domain Orders', amount: '12', percentage: 33.3 },
-              { category: 'SSL Orders', amount: '4', percentage: 11.1 },
-              { category: 'Other Orders', amount: '2', percentage: 5.6 }
+              { category: 'Hosting Orders', amount: stats.orders_hosting || '0', percentage: 50 },
+              { category: 'Domain Orders', amount: stats.orders_domains || '0', percentage: 30 },
+              { category: 'SSL Orders', amount: stats.orders_ssl || '0', percentage: 10 },
+              { category: 'Other Orders', amount: stats.orders_other || '0', percentage: 10 }
             ],
             details: {
-              pendingOrders: 5,
-              completedOrders: 28,
-              cancelledOrders: 3
-            }
-          };
-          break;
-        case 'services':
-          mockData = {
-            title: 'Services Report',
-            subtitle: getDateRangeText(),
-            total: '245',
-            change: '+5%',
-            chartData: [
-              { label: 'Shared Hosting', value: 120 },
-              { label: 'VPS Hosting', value: 45 },
-              { label: 'Cloud Hosting', value: 35 },
-              { label: 'Dedicated Servers', value: 15 },
-              { label: 'Email Services', value: 30 }
-            ],
-            breakdown: [
-              { category: 'Active Services', value: 225, percentage: 91.8 },
-              { category: 'Suspended Services', value: 12, percentage: 4.9 },
-              { category: 'Pending Services', value: 8, percentage: 3.3 }
-            ]
-          };
-          break;
-        case 'domains':
-          mockData = {
-            title: 'Domains Report',
-            subtitle: getDateRangeText(),
-            total: '189',
-            change: '+3%',
-            chartData: [
-              { label: '.com', value: 95 },
-              { label: '.net', value: 35 },
-              { label: '.org', value: 25 },
-              { label: '.io', value: 15 },
-              { label: 'Other', value: 19 }
-            ],
-            breakdown: [
-              { category: 'Active Domains', value: 175, percentage: 92.6 },
-              { category: 'Expired Domains', value: 8, percentage: 4.2 },
-              { category: 'Pending Transfer', value: 6, percentage: 3.2 }
-            ],
-            details: {
-              expiringNext30Days: 12,
-              renewalRate: '85%'
+              pendingOrders: stats.orders_pending || 0,
+              completedOrders: stats.orders_complete || 0,
+              cancelledOrders: stats.orders_cancelled || 0
             }
           };
           break;
         default:
-          mockData = {
+          processedData = {
             title: 'Income Report',
             subtitle: getDateRangeText(),
-            total: '$12,450.00',
-            change: '+8.5%',
-            chartData: [
-              { label: 'Jan', value: 8500 },
-              { label: 'Feb', value: 9200 },
-              { label: 'Mar', value: 8900 },
-              { label: 'Apr', value: 9800 },
-              { label: 'May', value: 10500 },
-              { label: 'Jun', value: 12450 }
-            ]
+            total: stats.income_today ? `$${stats.income_today}` : '$0.00',
+            change: stats.income_growth ? `${stats.income_growth}%` : '+0%',
+            chartData: processIncomeData(stats)
           };
       }
       
-      setReportData(mockData);
+      setReportData(processedData);
       toast.success('Report data loaded successfully');
     } catch (error) {
       console.error('Error fetching report data:', error);
+      setError('Failed to load report data. Please check your API configuration.');
       toast.error('Failed to load report data');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Process income data from WHMCS stats
+  const processIncomeData = (stats) => {
+    // This is a placeholder - in a real implementation, you would process the actual data
+    // from the WHMCS API response
+    return [
+      { label: 'Jan', value: stats.income_jan || 0 },
+      { label: 'Feb', value: stats.income_feb || 0 },
+      { label: 'Mar', value: stats.income_mar || 0 },
+      { label: 'Apr', value: stats.income_apr || 0 },
+      { label: 'May', value: stats.income_may || 0 },
+      { label: 'Jun', value: stats.income_jun || 0 }
+    ];
+  };
+
+  // Process client data from WHMCS stats
+  const processClientData = (stats) => {
+    // This is a placeholder - in a real implementation, you would process the actual data
+    // from the WHMCS API response
+    return [
+      { label: 'Jan', value: stats.clients_jan || 0 },
+      { label: 'Feb', value: stats.clients_feb || 0 },
+      { label: 'Mar', value: stats.clients_mar || 0 },
+      { label: 'Apr', value: stats.clients_apr || 0 },
+      { label: 'May', value: stats.clients_may || 0 },
+      { label: 'Jun', value: stats.clients_jun || 0 }
+    ];
+  };
+
+  // Process order data from WHMCS stats
+  const processOrderData = (stats) => {
+    // This is a placeholder - in a real implementation, you would process the actual data
+    // from the WHMCS API response
+    return [
+      { label: 'Jan', value: stats.orders_jan || 0 },
+      { label: 'Feb', value: stats.orders_feb || 0 },
+      { label: 'Mar', value: stats.orders_mar || 0 },
+      { label: 'Apr', value: stats.orders_apr || 0 },
+      { label: 'May', value: stats.orders_may || 0 },
+      { label: 'Jun', value: stats.orders_jun || 0 }
+    ];
   };
 
   const getDateRangeText = () => {
@@ -253,11 +234,31 @@ const WHMCSReportManager = () => {
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
         <div className="flex">
           <div className="flex-shrink-0">
-            <XCircle className="h-5 w-5 text-yellow-400" />
+            <AlertTriangle className="h-5 w-5 text-yellow-400" />
           </div>
           <div className="ml-3">
             <p className="text-sm text-yellow-700">
               WHMCS API is not configured. Please configure the API settings first.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <AlertTriangle className="h-5 w-5 text-red-400" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">
+              {error}
+            </p>
+            <p className="text-sm text-red-700 mt-2">
+              Please check your WHMCS API configuration in the settings.
             </p>
           </div>
         </div>
@@ -417,22 +418,6 @@ const WHMCSReportManager = () => {
                     <div className="text-sm text-gray-600 mb-1">Completed Orders</div>
                     <div className="text-3xl font-bold text-gray-900">{reportData.details.completedOrders}</div>
                     <div className="text-sm text-gray-600 mt-2">Successfully processed</div>
-                  </div>
-                </>
-              )}
-              
-              {reportType === 'domains' && reportData.details && (
-                <>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Expiring Soon</div>
-                    <div className="text-3xl font-bold text-gray-900">{reportData.details.expiringNext30Days}</div>
-                    <div className="text-sm text-gray-600 mt-2">Next 30 days</div>
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Renewal Rate</div>
-                    <div className="text-3xl font-bold text-gray-900">{reportData.details.renewalRate}</div>
-                    <div className="text-sm text-gray-600 mt-2">Average</div>
                   </div>
                 </>
               )}
